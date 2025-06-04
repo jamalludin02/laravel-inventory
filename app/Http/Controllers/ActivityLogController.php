@@ -12,10 +12,15 @@ class ActivityLogController extends Controller
      */
     public function index()
     {
-        $log = Activity::latest()->get();
+        $query = Activity::latest();
+        if (auth()->user()->role_id != 1) {
+            $query->where('causer_id', auth()->id());
+        }
+
+        $logs = $query->get();
+
         return view('aktivitas-user.index', [
-            'logs' => $log
+            'logs' => $logs
         ]);
     }
-
 }
