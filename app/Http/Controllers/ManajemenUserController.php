@@ -49,12 +49,12 @@ class ManajemenUserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'      => 'required',
-            'email'     => 'required',
+            'nik'     => 'required',
             'password'  => 'required|min:4',
             'role_id'   => 'required'
         ], [
             'name.required'     => 'Form Nama Wajib Di isi !',
-            'email.required'    => 'Form Email Wajib Di isi !',
+            'nik.required'    => 'Form nik Wajib Di isi !',
             'password.required' => 'Form Password Wajib Di isi !',
             'password.min'      => 'Password Minimal 4 Huruf/Angka/Karakter !',
             'role_id.required'  => 'Tentukan Role/Hak Akses !',
@@ -66,7 +66,7 @@ class ManajemenUserController extends Controller
 
         $pengguna = User::create([
             'name'      => $request->name,
-            'email'     => $request->email,
+            'nik'     => $request->nik,
             'password'  => Hash::make($request->password),
             'role_id'   => $request->role_id
         ]);
@@ -108,11 +108,11 @@ class ManajemenUserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name'      => 'required',
-            'email'     => 'required',
+            'nik'     => 'required',
             'role_id'   => 'required'
         ], [
             'name.required'     => 'Form Nama Wajib Di isi !',
-            'email.required'    => 'Form Email Wajib Di isi !',
+            'nik.required'    => 'Form nik Wajib Di isi !',
             'role_id.required'  => 'Tentukan Role/Hak Akses !',
         ]);
 
@@ -122,7 +122,7 @@ class ManajemenUserController extends Controller
 
         $userData = [
             'name'      => $request->name,
-            'email'     => $request->email,
+            'nik'     => $request->nik,
             'role_id'   => $request->role_id
         ];
 

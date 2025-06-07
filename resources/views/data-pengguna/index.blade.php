@@ -22,7 +22,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-                                    <th>Email</th>
+                                    <th>NIK</th>
                                     <th>Role</th>
                                     <th>Opsi</th>
                                 </tr>
@@ -57,7 +57,7 @@
                         <tr class="pengguna-row" id="index_${value.id}">
                             <td>${counter++}</td>
                             <td>${value.name}</td>
-                            <td>${value.email}</td>
+                            <td>${value.nik}</td>
                             <td>${value.role.role}</td>
                             <td>
                                 <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
@@ -82,14 +82,14 @@
             e.preventDefault();
 
             let name = $('#name').val();
-            let email = $('#email').val();
+            let nik = $('#nik').val();
             let password = $('#password').val();
             let role_id = $('#role_id').val();
             let token = $("meta[name='csrf-token']").attr("content");
 
             let formData = new FormData();
             formData.append('name', name);
-            formData.append('email', email);
+            formData.append('nik', nik);
             formData.append('password', password);
             formData.append('role_id', role_id);
             formData.append('_token', token);
@@ -128,7 +128,7 @@
                             <tr class="pengguna-row" id="index_${value.id}">
                                 <td>${counter++}</td>
                                 <td>${value.name}</td>
-                                <td>${value.email}</td>
+                                <td>${value.nik}</td>
                                 <td>${role}</td>
                                 <td>
                                     <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
@@ -142,7 +142,7 @@
                             });
 
                             $('#name').val('');
-                            $('#email').val('');
+                            $('#nik').val('');
                             $('#password').val('');
                             $('#role_id').val('');
 
@@ -175,11 +175,11 @@
                         $('#alert-name').html(error.responseJSON.name[0]);
                     }
 
-                    if (error.responseJSON && error.responseJSON.email && error.responseJSON.email[0]) {
-                        $('#alert-email').removeClass('d-none');
-                        $('#alert-email').addClass('d-block');
+                    if (error.responseJSON && error.responseJSON.nik && error.responseJSON.nik[0]) {
+                        $('#alert-nik').removeClass('d-none');
+                        $('#alert-nik').addClass('d-block');
 
-                        $('#alert-email').html(error.responseJSON.email[0]);
+                        $('#alert-nik').html(error.responseJSON.nik[0]);
                     }
 
                     if (error.responseJSON && error.responseJSON.password && error.responseJSON
@@ -216,7 +216,7 @@
                 success: function(response) {
                     $('#pengguna_id').val(response.data.id);
                     $('#edit_name').val(response.data.name);
-                    $('#edit_email').val(response.data.email);
+                    $('#edit_nik').val(response.data.nik);
                     $('#edit_password').val(response.data.password);
                     $('#edit_role_id').val(response.data.role_id);
 
@@ -231,7 +231,7 @@
 
             let pengguna_id = $('#pengguna_id').val();
             let name = $('#edit_name').val();
-            let email = $('#edit_email').val();
+            let nik = $('#edit_nik').val();
             let password = $('#edit_password').val();
             let role_id = $('#edit_role_id').val();
             let token = $("meta[name='csrf-token']").attr("content");
@@ -240,7 +240,7 @@
             // Buat objek FormData
             let formData = new FormData();
             formData.append('name', name);
-            formData.append('email', email);
+            formData.append('nik', nik);
             formData.append('role_id', role_id);
             formData.append('_token', token);
             formData.append('_method', 'PUT');
@@ -284,7 +284,7 @@
                                 <tr class="pengguna-row" id="index_${value.id}">
                                     <td>${counter++}</td>
                                     <td>${value.name}</td>
-                                    <td>${value.email}</td>
+                                    <td>${value.nik}</td>
                                     <td>${role}</td>
                                     <td>
                                         <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
@@ -298,7 +298,7 @@
                             });
 
                             $('#name').val('');
-                            $('#email').val('');
+                            $('#nik').val('');
                             $('#password').val('');
                             $('#role_id').val('');
 
@@ -330,11 +330,11 @@
                         $('#alert-name').html(error.responseJSON.name[0]);
                     }
 
-                    if (error.responseJSON && error.responseJSON.email && error.responseJSON.email[0]) {
-                        $('#alert-email').removeClass('d-none');
-                        $('#alert-email').addClass('d-block');
+                    if (error.responseJSON && error.responseJSON.nik && error.responseJSON.nik[0]) {
+                        $('#alert-nik').removeClass('d-none');
+                        $('#alert-nik').addClass('d-block');
 
-                        $('#alert-email').html(error.responseJSON.email[0]);
+                        $('#alert-nik').html(error.responseJSON.nik[0]);
                     }
 
                     if (error.responseJSON && error.responseJSON.role_id && error.responseJSON.role_id[
@@ -398,7 +398,7 @@
                                         <tr class="pengguna-row" id="index_${value.id}">
                                             <td>${counter++}</td>
                                             <td>${value.name}</td>
-                                            <td>${value.email}</td>
+                                            <td>${value.nik}</td>
                                             <td>${role}</td>
                                             <td>
                                                 <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>

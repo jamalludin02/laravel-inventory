@@ -10,16 +10,8 @@
         <form enctype="multipart/form-data">
           <div class="modal-body">
             <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Gambar</label>
-                  <input type="file" class="form-control" name="gambar" id="gambar" onchange="previewImage()">
-                  <img src="" class="img-preview img-fluid mb-3 mt-2" id="preview" style="max-height: 275px; overflow:hidden; border: 1px solid black;">
-                  <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-gambar"></div>
-                </div>
-              </div>
 
-              <div class="col-md-6">
+              <div class="col-md">
                 <div class="form-group">
                   <label>Nama Barang</label>
                   <input type="text" class="form-control" name="nama_barang" id="nama_barang">

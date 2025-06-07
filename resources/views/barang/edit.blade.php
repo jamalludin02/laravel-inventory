@@ -13,16 +13,8 @@
           <input type="hidden" id="barang_id">
 
           <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Gambar</label>
-                <input type="file" class="form-control" name="gambar" id="edit_gambar" onchange="previewImageEdit()">
-                <img src="" class="img-preview img-fluid my-1" id="edit_gambar_preview" style="max-height: 275px; overflow:hidden; border: 1px solid black;">
-                <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-gambar"></div>
-              </div>
-            </div>
 
-            <div class="col-md-6">
+            <div class="col-md">
               <div class="form-group">
                 <label>Nama Barang</label>
                 <input type="text" class="form-control" name="nama_barang" id="edit_nama_barang">

@@ -22,7 +22,6 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Gambar</th>
                                     <th>Kode Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Stok</th>
@@ -57,7 +56,6 @@
                         let barang = `
                 <tr class="barang-row" id="index_${value.id}">
                     <td>${counter++}</td>
-                    <td><img src="/storage/${value.gambar}" alt="gambar Barang" style="width: 150px"; height="150px"></td>
                     <td>${value.kode_barang}</td>
                     <td>${value.nama_barang}</td>
                     <td>${stok}</td>
@@ -84,7 +82,6 @@
         $('#store').click(function(e) {
             e.preventDefault();
 
-            let gambar = $('#gambar')[0].files[0];
             let nama_barang = $('#nama_barang').val();
             let stok_minimum = $('#stok_minimum').val();
             let jenis_id = $('#jenis_id').val();
@@ -93,7 +90,6 @@
             let token = $("meta[name='csrf-token']").attr("content");
 
             let formData = new FormData();
-            formData.append('gambar', gambar);
             formData.append('nama_barang', nama_barang);
             formData.append('stok_minimum', stok_minimum);
             formData.append('jenis_id', jenis_id);
@@ -133,7 +129,6 @@
                                 let barang = `
                             <tr class="barang-row" id="index_${value.id}">
                                 <td>${counter++}</td>
-                                <td><img src="/storage/${value.gambar}" alt="gambar Barang" style="width: 150px"; height="150px"></td>
                                 <td>${value.kode_barang}</td>
                                 <td>${value.nama_barang}</td>
                                 <td>${stok}</td>
@@ -148,7 +143,6 @@
                                     false);
                             });
 
-                            $('#gambar').val('');
                             $('#preview').attr('src', '');
                             $('#nama_barang').val('');
                             $('#stok_minimum').val('');
@@ -167,13 +161,6 @@
                 },
 
                 error: function(error) {
-                    if (error.responseJSON && error.responseJSON.gambar && error.responseJSON.gambar[
-                            0]) {
-                        $('#alert-gambar').removeClass('d-none');
-                        $('#alert-gambar').addClass('d-block');
-
-                        $('#alert-gambar').html(error.responseJSON.gambar[0]);
-                    }
 
                     if (error.responseJSON && error.responseJSON.nama_barang && error.responseJSON
                         .nama_barang[0]) {
@@ -230,7 +217,6 @@
                 cache: false,
                 success: function(response) {
                     $('#barang_id').val(response.data.id);
-                    $('#detail_gambar').val(null);
                     $('#detail_nama_barang').val(response.data.nama_barang);
                     $('#detail_jenis_id').val(response.data.jenis_id);
                     $('#detail_satuan_id').val(response.data.satuan_id);
@@ -239,7 +225,6 @@
                     $('#detail_stok_minimum').val(response.data.stok_minimum);
                     $('#detail_deskripsi').val(response.data.deskripsi);
 
-                    $('#detail_gambar_preview').attr('src', '/storage/' + response.data.gambar);
                     $('#modal_detail_barang').modal('show');
                 }
             });
@@ -258,13 +243,11 @@
                 cache: false,
                 success: function(response) {
                     $('#barang_id').val(response.data.id);
-                    $('#edit_gambar').val(null);
                     $('#edit_nama_barang').val(response.data.nama_barang);
                     $('#edit_stok_minimum').val(response.data.stok_minimum);
                     $('#edit_jenis_id').val(response.data.jenis_id);
                     $('#edit_satuan_id').val(response.data.satuan_id);
                     $('#edit_deskripsi').val(response.data.deskripsi);
-                    $('#edit_gambar_preview').attr('src', '/storage/' + response.data.gambar);
 
                     $('#modal_edit_barang').modal('show');
                 }
@@ -276,7 +259,6 @@
             e.preventDefault();
 
             let barang_id = $('#barang_id').val();
-            let gambar = $('#edit_gambar')[0].files[0];
             let nama_barang = $('#edit_nama_barang').val();
             let stok_minimum = $('#edit_stok_minimum').val();
             let deskripsi = $('#edit_deskripsi').val();
@@ -287,7 +269,6 @@
 
             // Buat objek FormData
             let formData = new FormData();
-            formData.append('gambar', gambar);
             formData.append('nama_barang', nama_barang);
             formData.append('stok_minimum', stok_minimum);
             formData.append('deskripsi', deskripsi);
@@ -319,10 +300,6 @@
                     // Memperbarui data pada kolom nomor urutan (indeks 0)
                     rowData.eq(0).text(row.index() + 1);
 
-                    // Memperbarui data pada kolom gambar (indeks 1)
-                    let imageColumn = rowData.eq(1).find('img');
-                    imageColumn.attr('src', `/storage/${response.data.gambar}`);
-
                     // Memperbarui data pada kolom kode barang (indeks 2)
                     rowData.eq(2).text(response.data.kode_barang);
 
@@ -337,13 +314,6 @@
                 },
 
                 error: function(error) {
-                    if (error.responseJSON && error.responseJSON.gambar && error.responseJSON.gambar[
-                            0]) {
-                        $('#alert-gambar').removeClass('d-none');
-                        $('#alert-gambar').addClass('d-block');
-
-                        $('#alert-gambar').html(error.responseJSON.gambar[0]);
-                    }
 
                     if (error.responseJSON && error.responseJSON.nama_barang && error.responseJSON
                         .nama_barang[0]) {
@@ -423,7 +393,6 @@
                             // Hapus data dari cache DataTables
                             $('#table_id').DataTable().clear().draw();
 
-                            // Ambil ulang data dan gambar tabel
                             $.ajax({
                                 url: "/barang/get-data",
                                 type: "GET",
@@ -436,7 +405,6 @@
                                         let barang = `
                                         <tr class="barang-row" id="index_${value.id}">
                                             <td>${counter++}</td>
-                                            <td><img src="/storage/${value.gambar}" alt="gambar Barang" style="width: 150px"; height="150px"></td>
                                             <td>${value.kode_barang}</td>
                                             <td>${value.nama_barang}</td>
                                             <td>${stok}</td>
@@ -467,9 +435,4 @@
         }
     </script>
 
-    <script>
-        function previewImageEdit() {
-            edit_gambar_preview.src = URL.createObjectURL(event.target.files[0]);
-        }
-    </script>
 @endsection

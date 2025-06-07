@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('kode_barang')->unique();
             $table->string('nama_barang');
             $table->string('deskripsi');
-            $table->string('gambar');
+            $table->string('gambar')->nullable();
             $table->integer('stok_minimum');
             $table->integer('stok')->nullable()->default(0);
             $table->foreignId('user_id');
