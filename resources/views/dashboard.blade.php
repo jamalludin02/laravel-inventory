@@ -101,7 +101,12 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $barang->kode_barang }}</td>
                 <td>{{ $barang->nama_barang }}</td>
-                <td><span class="badge badge-warning"> {{ $barang->stok }}</span></td>
+                <td>
+                  <span class="badge {{ $barang->stok > 0 ? 'badge-warning' : 'badge-danger' }}">
+                      {{ $barang->stok }}
+                  </span>
+              </td>
+              
               </tr>
             @endforeach
           </tbody>

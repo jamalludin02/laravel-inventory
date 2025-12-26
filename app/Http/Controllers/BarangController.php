@@ -22,19 +22,19 @@ class BarangController extends Controller
     public function index()
     {
         return view('barang.index', [
-            'barangs'         => Barang::all(),
-            'jenis_barangs'   => Jenis::all(),
-            'satuans'         => Satuan::all()
+            'barangs' => Barang::all(),
+            'jenis_barangs' => Jenis::all(),
+            'satuans' => Satuan::all()
         ]);
     }
 
     public function getDataBarang()
     {
-        $barangs = Barang::all();
+        $barangs = Barang::with('satuan')->get();
 
         return response()->json([
-            'success'   => true,
-            'data'      => $barangs
+            'success' => true,
+            'data' => $barangs
         ]);
     }
 
@@ -53,25 +53,28 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_barang'   => 'required',
-            'deskripsi'     => 'required',
-            'stok_minimum'  => 'required|numeric',
-            'jenis_id'      => 'required',
-            'satuan_id'     => 'required'
+            'nama_barang' => 'required',
+            'deskripsi' => 'required',
+            'stok_minimum' => 'required|numeric',
+            'price' => 'required|numeric|min:0',
+            'jenis_id' => 'required',
+            'satuan_id' => 'required'
         ], [
-            'nama_barang.required'  => 'Form Nama Barang Wajib Di Isi !',
-            'deskripsi.required'    => 'Form Deskripsi Wajib Di Isi !',
+            'nama_barang.required' => 'Form Nama Barang Wajib Di Isi !',
+            'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !',
             'stok_minimum.required' => 'Form Stok Minimum Wajib Di Isi !',
-            'stok_minimum.numeric'  => 'Gunakan Angka Untuk Mengisi Form Ini !',
-            'jenis_id.required'     => 'Pilih Jenis Barang !',
-            'satuan_id.required'    => 'Pilih Jenis Barang !'
+            'stok_minimum.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
+            'price.required' => 'Form Harga Wajib Di Isi !',
+            'price.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
+            'jenis_id.required' => 'Pilih Jenis Barang !',
+            'satuan_id.required' => 'Pilih Satuan Barang !'
         ]);
 
 
         $kode_barang = 'BRG-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
         $request->merge([
-            'kode_barang'   => $kode_barang,
-            'user_id'       => auth()->user()->id,
+            'kode_barang' => $kode_barang,
+            'user_id' => auth()->user()->id,
         ]);
 
         if ($validator->fails()) {
@@ -80,18 +83,19 @@ class BarangController extends Controller
 
         $barang = Barang::create([
             'nama_barang' => $request->nama_barang,
-            'deskripsi'   => $request->deskripsi,
-            'user_id'     => $request->user_id,
+            'deskripsi' => $request->deskripsi,
+            'user_id' => $request->user_id,
             'kode_barang' => $request->kode_barang,
             'stok_minimum' => $request->stok_minimum,
-            'jenis_id'    => $request->jenis_id,
-            'satuan_id'   => $request->satuan_id
+            'price' => $request->price,
+            'jenis_id' => $request->jenis_id,
+            'satuan_id' => $request->satuan_id
         ]);
 
         return response()->json([
-            'success'   => true,
-            'message'   => 'Data Berhasil Disimpan !',
-            'data'      => $barang
+            'success' => true,
+            'message' => 'Data Berhasil Disimpan !',
+            'data' => $barang
         ]);
     }
 
@@ -103,7 +107,7 @@ class BarangController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Detail Data Barang',
-            'data'    => $barang
+            'data' => $barang
         ]);
     }
 
@@ -115,7 +119,7 @@ class BarangController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Edit Data Barang',
-            'data'    => $barang
+            'data' => $barang
         ]);
     }
 
@@ -125,33 +129,21 @@ class BarangController extends Controller
     public function update(Request $request, Barang $barang)
     {
         $validator = Validator::make($request->all(), [
-            'nama_barang'   => 'required',
-            'deskripsi'     => 'required',
-            'stok_minimum'  => 'required|numeric',
-            'jenis_id'      => 'required',
-            'satuan_id'      => 'required'
+            'nama_barang' => 'required',
+            'deskripsi' => 'required',
+            'stok_minimum' => 'required|numeric',
+            'price' => 'required|numeric|min:0',
+            'jenis_id' => 'required',
+            'satuan_id' => 'required'
         ], [
-            'nama_barang.required'  => 'Form Nama Barang Wajib Di Isi !',
-            'deskripsi.required'    => 'Form Deskripsi Wajib Di Isi !',
+            'nama_barang.required' => 'Form Nama Barang Wajib Di Isi !',
+            'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !',
             'stok_minimum.required' => 'Form Stok Minimum Wajib Di Isi !',
-            'stok_minimum.numeric'  => 'Gunakan Angka Untuk Mengisi Form Ini !',
-            'jenis_id.required'     => 'Pilih Jenis Barang !',
-            'satuan_id.required'    => 'Pilih Satuan Barang !'
-        ]);
-
-        $validator = Validator::make($request->all(), [
-            'nama_barang'   => 'required',
-            'deskripsi'     => 'required',
-            'stok_minimum'  => 'required|numeric',
-            'jenis_id'      => 'required',
-            'satuan_id'      => 'required'
-        ], [
-            'nama_barang.required'  => 'Form Nama Barang Wajib Di Isi !',
-            'deskripsi.required'    => 'Form Deskripsi Wajib Di Isi !',
-            'stok_minimum.required' => 'Form Stok Minimum Wajib Di Isi !',
-            'stok_minimum.numeric'  => 'Gunakan Angka Untuk Mengisi Form Ini !',
-            'jenis_id.required'     => 'Pilih Jenis Barang !',
-            'satuan_id.required'    => 'Pilih Satuan Barang !'
+            'stok_minimum.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
+            'price.required' => 'Form Harga Wajib Di Isi !',
+            'price.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
+            'jenis_id.required' => 'Pilih Jenis Barang !',
+            'satuan_id.required' => 'Pilih Satuan Barang !'
         ]);
 
         if ($validator->fails()) {
@@ -159,18 +151,19 @@ class BarangController extends Controller
         }
 
         $barang->update([
-            'nama_barang'   => $request->nama_barang,
-            'stok_minimum'  => $request->stok_minimum,
-            'deskripsi'     => $request->deskripsi,
-            'user_id'       => auth()->user()->id,
-            'jenis_id'      => $request->jenis_id,
-            'satuan_id'     => $request->satuan_id
+            'nama_barang' => $request->nama_barang,
+            'stok_minimum' => $request->stok_minimum,
+            'price' => $request->price,
+            'deskripsi' => $request->deskripsi,
+            'user_id' => auth()->user()->id,
+            'jenis_id' => $request->jenis_id,
+            'satuan_id' => $request->satuan_id
         ]);
 
         return response()->json([
-            'success'   => true,
-            'message'   => 'Data Berhasil Terupdate',
-            'data'      => $barang
+            'success' => true,
+            'message' => 'Data Berhasil Terupdate',
+            'data' => $barang
         ]);
     }
 

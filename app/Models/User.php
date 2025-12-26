@@ -18,7 +18,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'nik',
+        'username',
         'password',
         'role_id'
     ];
@@ -39,7 +39,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'nik_verified_at' => 'datetime',
+        'username_verified_at' => 'datetime',
     ];
 
 

@@ -31,7 +31,7 @@
     </style>
 </head>
 <body>
-    <h1>Laporan Barang Masuk</h1>
+    <h1>Laporan Barang Keluar</h1>
     @if ($tanggalMulai && $tanggalSelesai)
         <p>Rentang Tanggal : {{ $tanggalMulai }} - {{ $tanggalSelesai }}<p>
     @else

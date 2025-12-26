@@ -23,26 +23,26 @@
 
               <div class="form-group">
                 <label>Jenis Barang</label>
-                <select class="form-control" name="jenis_id" id="edit_jenis_id">
+                <select class="form-control select2" name="jenis_id" id="edit_jenis_id">
                   @foreach ($jenis_barangs as $jenis)
-                  @if (old('jenis_id', $jenis->jenis_barang) == $jenis->id)
-                  <option value="{{ $jenis->id }}" selected>{{ $jenis->jenis_barang }}</option>
-                  @else
-                  <option value="{{ $jenis->id }}">{{ $jenis->jenis_barang }}</option>
-                  @endif
+                    @if (old('jenis_id', $jenis->jenis_barang) == $jenis->id)
+                      <option value="{{ $jenis->id }}" selected>{{ $jenis->jenis_barang }}</option>
+                    @else
+                      <option value="{{ $jenis->id }}">{{ $jenis->jenis_barang }}</option>
+                    @endif
                   @endforeach
                 </select>
               </div>
 
               <div class="form-group">
                 <label>Satuan Barang</label>
-                <select class="form-control" name="satuan_id" id="edit_satuan_id">
+                <select class="form-control select2" name="satuan_id" id="edit_satuan_id">
                   @foreach ($satuans as $satuan)
-                  @if (old('satuan', $satuan->satuans) == $satuan->id)
-                  <option value="{{ $satuan->id }}" selected>{{ $satuan->satuan }}</option>
-                  @else
-                  <option value="{{ $satuan->id }}">{{ $satuan->satuan }}</option>
-                  @endif
+                    @if (old('satuan', $satuan->satuans) == $satuan->id)
+                      <option value="{{ $satuan->id }}" selected>{{ $satuan->satuan }}</option>
+                    @else
+                      <option value="{{ $satuan->id }}">{{ $satuan->satuan }}</option>
+                    @endif
                   @endforeach
                 </select>
               </div>
@@ -50,9 +50,15 @@
               <div class="form-group">
                 <label>Stok Minimum</label>
                 <input type="number" class="form-control" name="stok_minimum" id="edit_stok_minimum">
-                <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-stok_minimum"></div>
+                <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-edit_stok_minimum"></div>
               </div>
-              
+
+              <div class="form-group">
+                <label>Harga</label>
+                <input type="number" class="form-control" name="price" id="edit_price">
+                <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-edit_price"></div>
+              </div>
+
               <div class="form-group">
                 <label>Deskripsi</label>
                 <textarea class="form-control" name="deskripsi" id="edit_deskripsi"></textarea>

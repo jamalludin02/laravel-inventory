@@ -115,7 +115,62 @@ class BarangMasukController extends Controller
      */
     public function update(Request $request, BarangMasuk $barangMasuk)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'tanggal_masuk'     => 'required',
+            'nama_barang'       => 'required',
+            'jumlah_masuk'      => 'required',
+            'supplier_id'       => 'required'
+        ],[
+            'tanggal_masuk.required'    => 'Pilih Barang Terlebih Dahulu !',
+            'nama_barang.required'      => 'Form Nama Barang Wajib Di Isi !',
+            'jumlah_masuk.required'     => 'Form Jumlah Stok Masuk Wajib Di Isi !',
+            'supplier_id.required'      => 'Pilih Supplier !'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Adjust stock
+        $oldJumlahMasuk = $barangMasuk->jumlah_masuk;
+        $oldNamaBarang = $barangMasuk->nama_barang;
+        $newJumlahMasuk = $request->jumlah_masuk;
+        $newNamaBarang = $request->nama_barang;
+
+        if ($oldNamaBarang === $newNamaBarang) {
+            $barang = Barang::where('nama_barang', $oldNamaBarang)->first();
+            if ($barang) {
+                $barang->stok = $barang->stok - $oldJumlahMasuk + $newJumlahMasuk;
+                $barang->save();
+            }
+        } else {
+            // Restore old barang stock
+            $oldBarang = Barang::where('nama_barang', $oldNamaBarang)->first();
+            if ($oldBarang) {
+                $oldBarang->stok -= $oldJumlahMasuk;
+                $oldBarang->save();
+            }
+            // Add to new barang stock
+            $newBarang = Barang::where('nama_barang', $newNamaBarang)->first();
+            if ($newBarang) {
+                $newBarang->stok += $newJumlahMasuk;
+                $newBarang->save();
+            }
+        }
+
+        $barangMasuk->update([
+            'tanggal_masuk'     => $request->tanggal_masuk,
+            'nama_barang'       => $request->nama_barang,
+            'jumlah_masuk'      => $request->jumlah_masuk,
+            'supplier_id'       => $request->supplier_id,
+            'kode_transaksi'    => $request->kode_transaksi,
+        ]);
+
+        return response()->json([
+            'success'   => true,
+            'message'   => 'Data Berhasil Terupdate !',
+            'data'      => $barangMasuk
+        ]);
     }
 
     /**

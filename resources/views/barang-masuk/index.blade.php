@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @include('barang-masuk.create')
+@include('barang-masuk.edit')
 
 @section('content')
     <div class="section-header">
@@ -38,333 +39,284 @@
         </div>
     </div>
 
-
-    <!-- Select2 Autocomplete -->
     <script>
-        $(document).ready(function() {
-            setTimeout(function() {
-                $('.js-example-basic-single').select2();
-
-                $('#nama_barang').on('change', function() {
-                    var selectedOption = $(this).find('option:selected');
-                    var nama_barang = selectedOption.text();
-
-                    $.ajax({
-                        url: '/api/barang-masuk',
-                        type: 'GET',
-                        data: {
-                            nama_barang: nama_barang,
-                        },
-                        success: function(response) {
-                            if (response && (response.stok || response.stok === 0) &&
-                                response.satuan_id) {
-                                $('#stok').val(response.stok);
-                                getSatuanName(response.satuan_id, function(satuan) {
-                                    $('#satuan_id').val(satuan);
-                                });
-                            } else if (response && response.stok === 0) {
-                                $('#stok').val(0);
-                                $('#satuan_id').val('');
-                            }
-                        },
-                    });
-
-                    function getSatuanName(satuanId, callback) {
-                        $.getJSON('{{ url('api/satuan') }}', function(satuans) {
-                            var satuan = satuans.find(function(s) {
-                                return s.id === satuanId;
-                            });
-                            callback(satuan ? satuan.satuan : '');
-                        });
-                    }
-                });
-            }, 500);
-        });
-    </script>
-
-    <!-- Datatable -->
-    <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
+            // Initialize DataTable
             $('#table_id').DataTable({
                 paging: true
             });
 
-            $.ajax({
-                url: "/barang-masuk/get-data",
-                type: "GET",
-                dataType: 'JSON',
-                success: function(response) {
-                    let counter = 1;
-                    $('#table_id').DataTable().clear();
-                    $.each(response.data, function(key, value) {
-                        let supplier = getSupplierName(response.supplier, value.supplier_id);
-                        let barangMasuk = `
-                <tr class="barang-row" id="index_${value.id}">
-                    <td>${counter++}</td>   
-                    <td>${value.kode_transaksi}</td>
-                    <td>${value.tanggal_masuk}</td>
-                    <td>${value.nama_barang}</td>
-                    <td>${value.jumlah_masuk}</td>
-                    <td>${supplier}</td>
-                    <td>
-                        <a href="javascript:void(0)" id="button_hapus_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                    </td>
-                </tr>
-            `;
-                        $('#table_id').DataTable().row.add($(barangMasuk)).draw(false);
-                    });
+            // Load Initial Data
+            loadData();
 
-                    function getSupplierName(suppliers, supplierId) {
-                        let supplier = suppliers.find(s => s.id === supplierId);
-                        return supplier ? supplier.supplier : '';
-                    }
-                }
+            // Initialize Select2
+            $('.select2').select2({
+                width: '100%'
             });
-        });
-    </script>
 
-    <!-- Generate Kode Transaksi Otomatis -->
-    <script>
-        function generateKodeTransaksi() {
-            var tanggal = new Date().toLocaleDateString('id-ID').split('/').reverse().join('-');
-            var randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            var kodeTransaksi = 'TRX-IN-' + tanggal + '-' + randomNumber;
-
-            $('#kode_transaksi').val(kodeTransaksi);
-            return kodeTransaksi;
-        }
-
-        $(document).ready(function() {
+            // Generate Initial Kode Transaksi
             generateKodeTransaksi();
-        });
-    </script>
 
-    <!-- Show Modal Tambah Jenis Barang -->
-    <script>
-        $('body').on('click', '#button_tambah_barangMasuk', function() {
-            $('#modal_tambah_barangMasuk').modal('show');
-            $('#kode_transaksi').val(generateKodeTransaksi());
-        });
+            // Set Today's Date
+            setTodayDate();
 
-        $('#store').click(function(e) {
-            e.preventDefault();
+            // --- Event Listeners ---
 
-            let kode_transaksi = $('#kode_transaksi').val();
-            let tanggal_masuk = $('#tanggal_masuk').val();
-            let nama_barang = $('#nama_barang').val();
-            let jumlah_masuk = $('#jumlah_masuk').val();
-            let supplier_id = $('#supplier_id').val();
-            let token = $("meta[name='csrf-token']").attr("content");
+            // Show Modal Tambah
+            $('body').on('click', '#button_tambah_barangMasuk', function () {
+                $('#modal_tambah_barangMasuk').modal('show');
+                generateKodeTransaksi();
+            });
 
-            let formData = new FormData();
-            formData.append('kode_transaksi', kode_transaksi);
-            formData.append('tanggal_masuk', tanggal_masuk);
-            formData.append('nama_barang', nama_barang);
-            formData.append('jumlah_masuk', jumlah_masuk);
-            formData.append('supplier_id', supplier_id);
-            formData.append('_token', token);
+            // Store Data
+            $('#store').click(function (e) {
+                e.preventDefault();
+                storeData();
+            });
 
-            $.ajax({
-                url: '/barang-masuk',
-                type: "POST",
-                cache: false,
-                data: formData,
-                contentType: false,
-                processData: false,
+            // Show Modal Edit
+            $('body').on('click', '#button_edit_barangMasuk', function () {
+                let id = $(this).data('id');
+                editData(id);
+            });
 
-                success: function(response) {
-                    Swal.fire({
-                        type: 'success',
-                        icon: 'success',
-                        title: `${response.message}`,
-                        showConfirmButton: true,
-                        timer: 3000
-                    });
+            // Update Data
+            $('#update').click(function (e) {
+                e.preventDefault();
+                updateData();
+            });
 
-                    $.ajax({
-                        url: '/barang-masuk/get-data',
-                        type: "GET",
-                        cache: false,
-                        success: function(response) {
-                            $('#table-barangs').html('');
+            // Hapus Data
+            $('body').on('click', '#button_hapus_barangMasuk', function () {
+                let id = $(this).data('id');
+                deleteData(id);
+            });
 
-                            let counter = 1;
-                            $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
-                                let supplier = getSupplierName(response.supplier,
-                                    value.supplier_id);
-                                let barangMasuk = `
+            // Auto-fill on Barang Change (Create)
+            $('#nama_barang').on('change', function () {
+                let nama_barang = $(this).find('option:selected').text();
+                fetchBarangInfo(nama_barang, '#stok', '#satuan_id');
+            });
+
+            // Auto-fill on Barang Change (Edit)
+            $('#edit_nama_barang').on('change', function () {
+                let nama_barang = $(this).find('option:selected').text();
+                fetchBarangInfo(nama_barang, '#edit_stok', '#edit_satuan_id');
+            });
+
+            // --- Functions ---
+
+            function loadData() {
+                $.ajax({
+                    url: "/barang-masuk/get-data",
+                    type: "GET",
+                    dataType: 'JSON',
+                    success: function (response) {
+                        renderTable(response.data, response.supplier);
+                    }
+                });
+            }
+
+            function renderTable(data, suppliers) {
+                let counter = 1;
+                $('#table_id').DataTable().clear();
+                $.each(data, function (key, value) {
+                    let supplierName = getSupplierName(suppliers, value.supplier_id);
+                    let row = `
                                 <tr class="barang-row" id="index_${value.id}">
                                     <td>${counter++}</td>   
                                     <td>${value.kode_transaksi}</td>
                                     <td>${value.tanggal_masuk}</td>
                                     <td>${value.nama_barang}</td>
                                     <td>${value.jumlah_masuk}</td>
-                                    <td>${supplier}</td>
+                                    <td>${supplierName}</td>
                                     <td>
+                                        <a href="javascript:void(0)" id="button_edit_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
                                         <a href="javascript:void(0)" id="button_hapus_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
                                     </td>
                                 </tr>
-                             `;
-                                $('#table_id').DataTable().row.add($(barangMasuk))
-                                    .draw(false);
-                            });
+                            `;
+                    $('#table_id').DataTable().row.add($(row)).draw(false);
+                });
+            }
 
-                            $('#kode_transaksi').val('');
-                            $('#nama_barang').val('');
-                            $('#jumlah_masuk').val('');
-                            $('#stok').val('');
+            function storeData() {
+                let formData = new FormData();
+                formData.append('kode_transaksi', $('#kode_transaksi').val());
+                formData.append('tanggal_masuk', $('#tanggal_masuk').val());
+                formData.append('nama_barang', $('#nama_barang').val());
+                formData.append('jumlah_masuk', $('#jumlah_masuk').val());
+                formData.append('supplier_id', $('#supplier_id').val());
+                formData.append('_token', $("meta[name='csrf-token']").attr("content"));
 
-                            $('#modal_tambah_barangMasuk').modal('hide');
+                $.ajax({
+                    url: '/barang-masuk',
+                    type: "POST",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: true,
+                            timer: 3000
+                        });
+                        $('#modal_tambah_barangMasuk').modal('hide');
+                        resetCreateForm();
+                        loadData();
+                    },
+                    error: function (error) {
+                        handleValidationErrors(error.responseJSON, '');
+                    }
+                });
+            }
 
-                            let table = $('#table_id').DataTable();
-                            table.draw(); // memperbarui Datatables
+            function editData(id) {
+                $.ajax({
+                    url: `/barang-masuk/${id}/edit`,
+                    type: "GET",
+                    success: function (response) {
+                        $('#barangMasuk_id').val(response.data.id);
+                        $('#edit_tanggal_masuk').val(response.data.tanggal_masuk);
+                        $('#edit_kode_transaksi').val(response.data.kode_transaksi);
+                        $('#edit_nama_barang').val(response.data.nama_barang).trigger('change');
+                        $('#edit_jumlah_masuk').val(response.data.jumlah_masuk);
+                        $('#edit_supplier_id').val(response.data.supplier_id);
+                        $('#modal_edit_barangMasuk').modal('show');
+                    }
+                });
+            }
 
-                            function getSupplierName(suppliers, supplierId) {
-                                let supplier = suppliers.find(s => s.id === supplierId);
-                                return supplier ? supplier.supplier : '';
+            function updateData() {
+                let id = $('#barangMasuk_id').val();
+                let formData = new FormData();
+                formData.append('tanggal_masuk', $('#edit_tanggal_masuk').val());
+                formData.append('kode_transaksi', $('#edit_kode_transaksi').val());
+                formData.append('nama_barang', $('#edit_nama_barang').val());
+                formData.append('jumlah_masuk', $('#edit_jumlah_masuk').val());
+                formData.append('supplier_id', $('#edit_supplier_id').val());
+                formData.append('_token', $("meta[name='csrf-token']").attr("content"));
+                formData.append('_method', 'PUT');
+
+                $.ajax({
+                    url: `/barang-masuk/${id}`,
+                    type: "POST",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: true,
+                            timer: 3000
+                        });
+                        $('#modal_edit_barangMasuk').modal('hide');
+                        loadData();
+                    },
+                    error: function (error) {
+                        handleValidationErrors(error.responseJSON, 'edit-');
+                    }
+                });
+            }
+
+            function deleteData(id) {
+                Swal.fire({
+                    title: 'Apakah Kamu Yakin?',
+                    text: "ingin menghapus data ini !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'YA, HAPUS!',
+                    cancelButtonText: 'TIDAK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/barang-masuk/${id}`,
+                            type: "DELETE",
+                            data: { "_token": $("meta[name='csrf-token']").attr("content") },
+                            success: function (response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.message,
+                                    showConfirmButton: true,
+                                    timer: 3000
+                                });
+                                loadData();
                             }
-                        },
-                        error: function(error) {
-                            console.log(error);
+                        });
+                    }
+                });
+            }
+
+            function fetchBarangInfo(nama_barang, stokElem, satuanElem) {
+                $.ajax({
+                    url: '/api/barang-masuk',
+                    type: 'GET',
+                    data: { nama_barang: nama_barang },
+                    success: function (response) {
+                        if (response) {
+                            $(stokElem).val(response.stok || 0);
+                            if (response.satuan_id) {
+                                getSatuanName(response.satuan_id, function (satuan) {
+                                    $(satuanElem).val(satuan);
+                                });
+                            } else {
+                                $(satuanElem).val('');
+                            }
                         }
-                    })
-                },
-
-                error: function(error) {
-                    if (error.responseJSON && error.responseJSON.kode_transaksi && error.responseJSON
-                        .kode_transaksi[0]) {
-                        $('#alert-kode_transaksi').removeClass('d-none');
-                        $('#alert-kode_transaksi').addClass('d-block');
-
-                        $('#alert-kode_transaksi').html(error.responseJSON.kode_transaksi[0]);
                     }
+                });
+            }
 
-                    if (error.responseJSON && error.responseJSON.tanggal_masuk && error.responseJSON
-                        .tanggal_masuk[0]) {
-                        $('#alert-tanggal_masuk').removeClass('d-none');
-                        $('#alert-tanggal_masuk').addClass('d-block');
+            function getSupplierName(suppliers, id) {
+                let supplier = suppliers.find(s => s.id === id);
+                return supplier ? supplier.supplier : '';
+            }
 
-                        $('#alert-tanggal_masuk').html(error.responseJSON.tanggal_masuk[0]);
+            function getSatuanName(id, callback) {
+                $.getJSON('{{ url('api/satuan') }}', function (satuans) {
+                    let satuan = satuans.find(s => s.id === id);
+                    callback(satuan ? satuan.satuan : '');
+                });
+            }
+
+            function generateKodeTransaksi() {
+                let date = new Date().toLocaleDateString('id-ID').split('/').reverse().join('-');
+                let random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+                let code = `TRX-IN-${date}-${random}`;
+                $('#kode_transaksi').val(code);
+            }
+
+            function setTodayDate() {
+                let today = new Date();
+                let formatted = today.getFullYear() + '-' +
+                    (today.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                    today.getDate().toString().padStart(2, '0');
+                $('#tanggal_masuk').val(formatted);
+            }
+
+            function resetCreateForm() {
+                $('#nama_barang').val('Pilih Barang').trigger('change');
+                $('#jumlah_masuk').val('');
+                $('#stok').val('');
+                $('#satuan_id').val('');
+                generateKodeTransaksi();
+            }
+
+            function handleValidationErrors(errors, prefix) {
+                const fields = ['kode_transaksi', 'tanggal_masuk', 'nama_barang', 'jumlah_masuk', 'supplier_id'];
+                fields.forEach(field => {
+                    let errorElem = $(`#alert-${prefix}${field}`);
+                    if (errors && errors[field]) {
+                        errorElem.removeClass('d-none').addClass('d-block').html(errors[field][0]);
+                    } else {
+                        errorElem.removeClass('d-block').addClass('d-none');
                     }
-
-                    if (error.responseJSON && error.responseJSON.nama_barang && error.responseJSON
-                        .nama_barang[0]) {
-                        $('#alert-nama_barang').removeClass('d-none');
-                        $('#alert-nama_barang').addClass('d-block');
-
-                        $('#alert-nama_barang').html(error.responseJSON.nama_barang[0]);
-                    }
-
-                    if (error.responseJSON && error.responseJSON.jumlah_masuk && error.responseJSON
-                        .jumlah_masuk[0]) {
-                        $('#alert-jumlah_masuk').removeClass('d-none');
-                        $('#alert-jumlah_masuk').addClass('d-block');
-
-                        $('#alert-jumlah_masuk').html(error.responseJSON.jumlah_masuk[0]);
-                    }
-
-                    if (error.responseJSON && error.responseJSON.supplier_id && error.responseJSON
-                        .supplier_id[0]) {
-                        $('#alert-supplier_id').removeClass('d-none');
-                        $('#alert-supplier_id').addClass('d-block');
-
-                        $('#alert-supplier_id').html(error.responseJSON.supplier_id[0]);
-                    }
-                }
-            });
+                });
+            }
         });
-    </script>
-
-
-    <!-- Hapus Data Barang -->
-    <script>
-        $('body').on('click', '#button_hapus_barangMasuk', function() {
-            let barangMasuk_id = $(this).data('id');
-            let token = $("meta[name='csrf-token']").attr("content");
-
-            Swal.fire({
-                title: 'Apakah Kamu Yakin?',
-                text: "ingin menghapus data ini !",
-                icon: 'warning',
-                showCancelButton: true,
-                cancelButtonText: 'TIDAK',
-                confirmButtonText: 'YA, HAPUS!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/barang-masuk/${barangMasuk_id}`,
-                        type: "DELETE",
-                        cache: false,
-                        data: {
-                            "_token": token
-                        },
-                        success: function(response) {
-                            Swal.fire({
-                                type: 'success',
-                                icon: 'success',
-                                title: `${response.message}`,
-                                showConfirmButton: true,
-                                timer: 3000
-                            });
-                            $(`#index_${barangMasuk_id}`).remove();
-
-                            $.ajax({
-                                url: "/barang-masuk/get-data",
-                                type: "GET",
-                                dataType: 'JSON',
-                                success: function(response) {
-                                    let counter = 1;
-                                    $('#table_id').DataTable().clear();
-                                    $.each(response.data, function(key, value) {
-                                        let supplier = getSupplierName(
-                                            response.supplier, value
-                                            .supplier_id);
-                                        let barangMasuk = `
-                                        <tr class="barang-row" id="index_${value.id}">
-                                            <td>${counter++}</td>   
-                                            <td>${value.kode_transaksi}</td>
-                                            <td>${value.tanggal_masuk}</td>
-                                            <td>${value.nama_barang}</td>
-                                            <td>${value.jumlah_masuk}</td>
-                                            <td>${supplier}</td>
-                                            <td>
-                                                <a href="javascript:void(0)" id="button_hapus_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                            </td>
-                                        </tr>
-                                    `;
-                                        $('#table_id').DataTable().row.add(
-                                            $(barangMasuk)).draw(false);
-                                    });
-
-                                    function getSupplierName(suppliers,
-                                    supplierId) {
-                                        let supplier = suppliers.find(s => s.id ===
-                                            supplierId);
-                                        return supplier ? supplier.supplier : '';
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-
-    <script>
-        // Mendapatkan tanggal hari ini
-        var today = new Date();
-
-        // Mendapatkan nilai tahun, bulan, dan tanggal
-        var year = today.getFullYear();
-        var month = (today.getMonth() + 1).toString().padStart(2, '0'); // Ditambahkan +1 karena indeks bulan dimulai dari 0
-        var day = today.getDate().toString().padStart(2, '0');
-
-        // Menggabungkan nilai tahun, bulan, dan tanggal menjadi format "YYYY-MM-DD"
-        var formattedDate = year + '-' + month + '-' + day;
-
-        // Mengisi nilai input field dengan tanggal hari ini
-        document.getElementById('tanggal_masuk').value = formattedDate;
     </script>
 @endsection

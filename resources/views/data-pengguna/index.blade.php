@@ -7,7 +7,8 @@
     <div class="section-header">
         <h1>Data Pengguna</h1>
         <div class="ml-auto">
-            <a href="javascript:void(0)" class="btn btn-primary" id="button_tambah_pengguna"><i class="fa fa-plus"></i> Tambah
+            <a href="javascript:void(0)" class="btn btn-primary" id="button_tambah_pengguna"><i class="fa fa-plus"></i>
+                Tambah
                 Pengguna</a>
         </div>
     </div>
@@ -22,7 +23,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-                                    <th>NIK</th>
+                                    <th>Username</th>
                                     <th>Role</th>
                                     <th>Opsi</th>
                                 </tr>
@@ -38,7 +39,8 @@
 
     <!-- Datatables Jquery -->
     <script>
-        $(document).ready(function() {
+        const isSuperAdmin = {{ auth()->user()->role->role === 'superadmin' ? 'true' : 'false' }};
+        $(document).ready(function () {
             $('#table_id').DataTable({
                 paging: true
             });
@@ -46,25 +48,26 @@
                 url: "/data-pengguna/get-data",
                 type: "GET",
                 dataType: 'JSON',
-                success: function(response) {
+                success: function (response) {
                     let counter = 1;
                     if ($.fn.DataTable.isDataTable('#table_id')) {
                         $('#table_id').DataTable().destroy();
                     }
                     $('#table_id').DataTable().clear();
-                    $.each(response.data, function(key, value) {
+                    $.each(response.data, function (key, value) {
                         let pengguna = `
-                        <tr class="pengguna-row" id="index_${value.id}">
-                            <td>${counter++}</td>
-                            <td>${value.name}</td>
-                            <td>${value.nik}</td>
-                            <td>${value.role.role}</td>
-                            <td>
-                                <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                            </td>
-                        </tr>
-                        `;
+                            <tr class="pengguna-row" id="index_${value.id}">
+                                <td>${counter++}</td>
+                                <td>${value.name}</td>
+                                <td>${value.username}</td>
+                                <td>${value.role.role}</td>
+                                <td>
+                                    <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                    <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                    ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-undo"></i> </a>` : ''}
+                                </td>
+                            </tr>
+                            `;
                         $('#table_id').DataTable().row.add($(pengguna)).draw(false);
                     });
                 }
@@ -74,22 +77,22 @@
 
     <!-- Show Modal Tambah barang -->
     <script>
-        $('body').on('click', '#button_tambah_pengguna', function() {
+        $('body').on('click', '#button_tambah_pengguna', function () {
             $('#modal_tambah_pengguna').modal('show');
         });
 
-        $('#store').click(function(e) {
+        $('#store').click(function (e) {
             e.preventDefault();
 
             let name = $('#name').val();
-            let nik = $('#nik').val();
+            let username = $('#username').val();
             let password = $('#password').val();
             let role_id = $('#role_id').val();
             let token = $("meta[name='csrf-token']").attr("content");
 
             let formData = new FormData();
             formData.append('name', name);
-            formData.append('nik', nik);
+            formData.append('username', username);
             formData.append('password', password);
             formData.append('role_id', role_id);
             formData.append('_token', token);
@@ -102,7 +105,7 @@
                 contentType: false,
                 processData: false,
 
-                success: function(response) {
+                success: function (response) {
                     Swal.fire({
                         type: 'success',
                         icon: 'success',
@@ -116,33 +119,34 @@
                         type: "GET",
                         dataType: 'JSON',
                         cache: false,
-                        success: function(response) {
+                        success: function (response) {
                             $('#table-pengguna').html(
                                 ''); // kosongkan tabel terlebih dahulu
 
                             let counter = 1;
                             $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
-                                getRoleName(value.role_id, function(role) {
+                            $.each(response.data, function (key, value) {
+                                getRoleName(value.role_id, function (role) {
                                     let pengguna = `
-                            <tr class="pengguna-row" id="index_${value.id}">
-                                <td>${counter++}</td>
-                                <td>${value.name}</td>
-                                <td>${value.nik}</td>
-                                <td>${role}</td>
-                                <td>
-                                    <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                    <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                </td>
-                            </tr>
-                            `;
+                                <tr class="pengguna-row" id="index_${value.id}">
+                                    <td>${counter++}</td>
+                                    <td>${value.name}</td>
+                                    <td>${value.username}</td>
+                                    <td>${role}</td>
+                                    <td>
+                                        ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                        <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                        <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                    </td>
+                                </tr>
+                                `;
                                     $('#table_id').DataTable().row.add($(
                                         pengguna)).draw(false);
                                 });
                             });
 
                             $('#name').val('');
-                            $('#nik').val('');
+                            $('#username').val('');
                             $('#password').val('');
                             $('#role_id').val('');
 
@@ -152,22 +156,22 @@
                             table.draw(); // memperbarui Datatables
 
                             function getRoleName(roleId, callback) {
-                                $.getJSON('{{ url('api/role') }}', function(roles) {
-                                    var role = roles.find(function(s) {
+                                $.getJSON('{{ url('api/role') }}', function (roles) {
+                                    var role = roles.find(function (s) {
                                         return s.id === roleId;
                                     });
                                     callback(role ? role.role : '');
                                 });
                             }
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.log(error);
                         }
                     });
 
                 },
 
-                error: function(error) {
+                error: function (error) {
                     if (error.responseJSON && error.responseJSON.name && error.responseJSON.name[0]) {
                         $('#alert-name').removeClass('d-none');
                         $('#alert-name').addClass('d-block');
@@ -175,11 +179,11 @@
                         $('#alert-name').html(error.responseJSON.name[0]);
                     }
 
-                    if (error.responseJSON && error.responseJSON.nik && error.responseJSON.nik[0]) {
-                        $('#alert-nik').removeClass('d-none');
-                        $('#alert-nik').addClass('d-block');
+                    if (error.responseJSON && error.responseJSON.username && error.responseJSON.username[0]) {
+                        $('#alert-username').removeClass('d-none');
+                        $('#alert-username').addClass('d-block');
 
-                        $('#alert-nik').html(error.responseJSON.nik[0]);
+                        $('#alert-username').html(error.responseJSON.username[0]);
                     }
 
                     if (error.responseJSON && error.responseJSON.password && error.responseJSON
@@ -191,7 +195,7 @@
                     }
 
                     if (error.responseJSON && error.responseJSON.role_id && error.responseJSON.role_id[
-                            0]) {
+                        0]) {
                         $('#alert-role_id').removeClass('d-none');
                         $('#alert-role_id').addClass('d-block');
 
@@ -206,17 +210,17 @@
     <!-- Edit Data Pengguna -->
     <script>
         // Menampilkan Form Modal Edit
-        $('body').on('click', '#button_edit_pengguna', function() {
+        $('body').on('click', '#button_edit_pengguna', function () {
             let pengguna_id = $(this).data('id');
 
             $.ajax({
                 url: `/data-pengguna/${pengguna_id}/edit`,
                 type: "GET",
                 cache: false,
-                success: function(response) {
+                success: function (response) {
                     $('#pengguna_id').val(response.data.id);
                     $('#edit_name').val(response.data.name);
-                    $('#edit_nik').val(response.data.nik);
+                    $('#edit_username').val(response.data.username);
                     $('#edit_password').val(response.data.password);
                     $('#edit_role_id').val(response.data.role_id);
 
@@ -226,12 +230,12 @@
         });
 
         // Proses Update Data
-        $('#update').click(function(e) {
+        $('#update').click(function (e) {
             e.preventDefault();
 
             let pengguna_id = $('#pengguna_id').val();
             let name = $('#edit_name').val();
-            let nik = $('#edit_nik').val();
+            let username = $('#edit_username').val();
             let password = $('#edit_password').val();
             let role_id = $('#edit_role_id').val();
             let token = $("meta[name='csrf-token']").attr("content");
@@ -240,7 +244,7 @@
             // Buat objek FormData
             let formData = new FormData();
             formData.append('name', name);
-            formData.append('nik', nik);
+            formData.append('username', username);
             formData.append('role_id', role_id);
             formData.append('_token', token);
             formData.append('_method', 'PUT');
@@ -258,7 +262,7 @@
                 contentType: false,
                 processData: false,
 
-                success: function(response) {
+                success: function (response) {
                     Swal.fire({
                         type: 'success',
                         icon: 'success',
@@ -272,33 +276,34 @@
                         type: "GET",
                         dataType: 'JSON',
                         cache: false,
-                        success: function(response) {
+                        success: function (response) {
                             $('#table-pengguna').html(
                                 ''); // kosongkan tabel terlebih dahulu
 
                             let counter = 1;
                             $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
-                                getRoleName(value.role_id, function(role) {
+                            $.each(response.data, function (key, value) {
+                                getRoleName(value.role_id, function (role) {
                                     let pengguna = `
-                                <tr class="pengguna-row" id="index_${value.id}">
-                                    <td>${counter++}</td>
-                                    <td>${value.name}</td>
-                                    <td>${value.nik}</td>
-                                    <td>${role}</td>
-                                    <td>
-                                        <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                        <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                    </td>
-                                </tr>
-                                `;
+                                    <tr class="pengguna-row" id="index_${value.id}">
+                                        <td>${counter++}</td>
+                                        <td>${value.name}</td>
+                                        <td>${value.username}</td>
+                                        <td>${role}</td>
+                                        <td>
+                                            ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                            <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                            <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                        </td>
+                                    </tr>
+                                    `;
                                     $('#table_id').DataTable().row.add($(
                                         pengguna)).draw(false);
                                 });
                             });
 
                             $('#name').val('');
-                            $('#nik').val('');
+                            $('#username').val('');
                             $('#password').val('');
                             $('#role_id').val('');
 
@@ -308,21 +313,21 @@
                             table.draw(); // memperbarui Datatables
 
                             function getRoleName(roleId, callback) {
-                                $.getJSON('{{ url('api/role') }}', function(roles) {
-                                    var role = roles.find(function(s) {
+                                $.getJSON('{{ url('api/role') }}', function (roles) {
+                                    var role = roles.find(function (s) {
                                         return s.id === roleId;
                                     });
                                     callback(role ? role.role : '');
                                 });
                             }
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.log(error);
                         }
                     });
                 },
 
-                error: function(error) {
+                error: function (error) {
                     if (error.responseJSON && error.responseJSON.name && error.responseJSON.name[0]) {
                         $('#alert-name').removeClass('d-none');
                         $('#alert-name').addClass('d-block');
@@ -330,15 +335,15 @@
                         $('#alert-name').html(error.responseJSON.name[0]);
                     }
 
-                    if (error.responseJSON && error.responseJSON.nik && error.responseJSON.nik[0]) {
-                        $('#alert-nik').removeClass('d-none');
-                        $('#alert-nik').addClass('d-block');
+                    if (error.responseJSON && error.responseJSON.username && error.responseJSON.username[0]) {
+                        $('#alert-username').removeClass('d-none');
+                        $('#alert-username').addClass('d-block');
 
-                        $('#alert-nik').html(error.responseJSON.nik[0]);
+                        $('#alert-username').html(error.responseJSON.username[0]);
                     }
 
                     if (error.responseJSON && error.responseJSON.role_id && error.responseJSON.role_id[
-                            0]) {
+                        0]) {
                         $('#alert-role_id').removeClass('d-none');
                         $('#alert-role_id').addClass('d-block');
 
@@ -351,7 +356,7 @@
 
     <!-- Hapus Data Barang -->
     <script>
-        $('body').on('click', '#button_hapus_pengguna', function() {
+        $('body').on('click', '#button_hapus_pengguna', function () {
             let pengguna_id = $(this).data('id');
             let token = $("meta[name='csrf-token']").attr("content");
 
@@ -371,7 +376,7 @@
                         data: {
                             "_token": token
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 type: 'success',
                                 icon: 'success',
@@ -385,27 +390,28 @@
                                 url: "/data-pengguna/get-data",
                                 type: "GET",
                                 dataType: 'JSON',
-                                success: function(response) {
+                                success: function (response) {
                                     let counter = 1;
                                     if ($.fn.DataTable.isDataTable('#table_id')) {
                                         $('#table_id').DataTable().destroy();
                                     }
                                     $('#table_id').DataTable().clear();
-                                    $.each(response.data, function(key, value) {
-                                        getRoleName(value.role_id, function(
+                                    $.each(response.data, function (key, value) {
+                                        getRoleName(value.role_id, function (
                                             role) {
                                             let pengguna = `
-                                        <tr class="pengguna-row" id="index_${value.id}">
-                                            <td>${counter++}</td>
-                                            <td>${value.name}</td>
-                                            <td>${value.nik}</td>
-                                            <td>${role}</td>
-                                            <td>
-                                                <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                                <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                            </td>
-                                        </tr>
-                                        `;
+                                            <tr class="pengguna-row" id="index_${value.id}">
+                                                <td>${counter++}</td>
+                                                <td>${value.name}</td>
+                                                <td>${value.username}</td>
+                                                <td>${role}</td>
+                                                <td>
+                                                    ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                                    <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                    <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                </td>
+                                            </tr>
+                                            `;
                                             $('#table_id')
                                                 .DataTable().row
                                                 .add($(pengguna))
@@ -414,9 +420,9 @@
                                     });
 
                                     function getRoleName(roleId, callback) {
-                                        $.getJSON('{{ url('api/role') }}', function(
+                                        $.getJSON('{{ url('api/role') }}', function (
                                             roles) {
-                                            var role = roles.find(function(
+                                            var role = roles.find(function (
                                                 s) {
                                                 return s.id ===
                                                     roleId;

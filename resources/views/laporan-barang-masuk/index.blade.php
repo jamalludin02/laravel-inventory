@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@include('barang-masuk.edit')
+
 @section('content')
 
 <div class="section-header">
@@ -45,6 +47,7 @@
                                 <th>Nama Barang</th>
                                 <th>Jumlah Masuk</th>
                                 <th>Supplier</th>
+                                <th>Opsi</th>
                             </tr>
                         </thead>
                         <tbody id="tabel-laporan-barang-masuk">
@@ -96,7 +99,8 @@
                                 item.tanggal_masuk,
                                 item.nama_barang,
                                 item.jumlah_masuk,
-                                supplier
+                                supplier,
+                                `<a href="javascript:void(0)" id="button_edit_barangMasuk" data-id="${item.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>`
                             ];
                             table.row.add(row).draw(false); // Tambahkan data yang baru ke DataTable
                         });
@@ -140,6 +144,106 @@
 
         window.location.href = url;
     });
+
+    // Edit Data Barang Masuk
+    $('body').on('click', '#button_edit_barangMasuk', function() {
+        let barangMasuk_id = $(this).data('id');
+
+        $.ajax({
+            url: `/barang-masuk/${barangMasuk_id}/edit`,
+            type: "GET",
+            cache: false,
+            success: function(response) {
+                $('#barangMasuk_id').val(response.data.id);
+                $('#edit_tanggal_masuk').val(response.data.tanggal_masuk);
+                $('#edit_kode_transaksi').val(response.data.kode_transaksi);
+                $('#edit_nama_barang').val(response.data.nama_barang).trigger('change');
+                $('#edit_jumlah_masuk').val(response.data.jumlah_masuk);
+                $('#edit_supplier_id').val(response.data.supplier_id);
+
+                $('#modal_edit_barangMasuk').modal('show');
+            }
+        });
+    });
+
+    // Update Data Barang Masuk
+    $('#update').click(function(e) {
+        e.preventDefault();
+
+        let barangMasuk_id = $('#barangMasuk_id').val();
+        let tanggal_masuk = $('#edit_tanggal_masuk').val();
+        let kode_transaksi = $('#edit_kode_transaksi').val();
+        let nama_barang = $('#edit_nama_barang').val();
+        let jumlah_masuk = $('#edit_jumlah_masuk').val();
+        let supplier_id = $('#edit_supplier_id').val();
+        let token = $("meta[name='csrf-token']").attr("content");
+
+        let formData = new FormData();
+        formData.append('tanggal_masuk', tanggal_masuk);
+        formData.append('kode_transaksi', kode_transaksi);
+        formData.append('nama_barang', nama_barang);
+        formData.append('jumlah_masuk', jumlah_masuk);
+        formData.append('supplier_id', supplier_id);
+        formData.append('_token', token);
+        formData.append('_method', 'PUT');
+
+        $.ajax({
+            url: `/barang-masuk/${barangMasuk_id}`,
+            type: "POST",
+            cache: false,
+            data: formData,
+            contentType: false,
+            processData: false,
+
+            success: function(response) {
+                Swal.fire({
+                    type: 'success',
+                    icon: 'success',
+                    title: `${response.message}`,
+                    showConfirmButton: true,
+                    timer: 3000
+                });
+
+                $('#modal_edit_barangMasuk').modal('hide');
+                loadData();
+            },
+            error: function(error) {
+                // Handle errors
+            }
+        });
+    });
+
+    // Auto-fill stok and satuan on barang change in edit modal
+    $('#edit_nama_barang').on('change', function() {
+        var selectedOption = $(this).find('option:selected');
+        var nama_barang = selectedOption.text();
+
+        $.ajax({
+            url: '/api/barang-masuk',
+            type: 'GET',
+            data: {
+                nama_barang: nama_barang,
+            },
+            success: function(response) {
+                if (response && (response.stok || response.stok === 0) &&
+                    response.satuan_id) {
+                    $('#edit_stok').val(response.stok);
+                    getSatuanName(response.satuan_id, function(satuan) {
+                        $('#edit_satuan_id').val(satuan);
+                    });
+                }
+            },
+        });
+    });
+
+    function getSatuanName(satuanId, callback) {
+        $.getJSON('{{ url('api/satuan') }}', function(satuans) {
+            var satuan = satuans.find(function(s) {
+                return s.id === satuanId;
+            });
+            callback(satuan ? satuan.satuan : '');
+        });
+    }
 });
 
 </script>

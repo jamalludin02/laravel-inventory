@@ -28,8 +28,8 @@ class ProfileController extends Controller
     {
         $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('nik')) {
-            $request->user()->nik_verified_at = null;
+        if ($request->user()->isDirty('username')) {
+            $request->user()->username_verified_at = null;
         }
 
         $request->user()->save();

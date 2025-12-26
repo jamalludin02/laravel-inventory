@@ -41,43 +41,43 @@
     <!-- Select2 Autocomplete -->
     <script>
         $(document).ready(function() {
-            setTimeout(function() {
-                $('.js-example-basic-single').select2();
+            $('.select2').select2({
+                width: '100%'
+            });
 
-                $('#nama_barang').on('change', function() {
-                    var selectedOption = $(this).find('option:selected');
-                    var nama_barang = selectedOption.text();
+            $('#nama_barang').on('change', function() {
+                var selectedOption = $(this).find('option:selected');
+                var nama_barang = selectedOption.text();
 
-                    $.ajax({
-                        url: 'api/barang-keluar',
-                        type: 'GET',
-                        data: {
-                            nama_barang: nama_barang,
-                        },
-                        success: function(response) {
-                            if (response && (response.stok || response.stok === 0) &&
-                                response.satuan_id) {
-                                $('#stok').val(response.stok);
-                                getSatuanName(response.satuan_id, function(satuan) {
-                                    $('#satuan_id').val(satuan);
-                                });
-                            } else if (response && response.stok === 0) {
-                                $('#stok').val(0);
-                                $('#satuan_id').val('');
-                            }
-                        },
-                    });
-
-                    function getSatuanName(satuanId, callback) {
-                        $.getJSON('{{ url('api/satuan') }}', function(satuans) {
-                            var satuan = satuans.find(function(s) {
-                                return s.id === satuanId;
+                $.ajax({
+                    url: 'api/barang-keluar',
+                    type: 'GET',
+                    data: {
+                        nama_barang: nama_barang,
+                    },
+                    success: function(response) {
+                        if (response && (response.stok || response.stok === 0) &&
+                            response.satuan_id) {
+                            $('#stok').val(response.stok);
+                            getSatuanName(response.satuan_id, function(satuan) {
+                                $('#satuan_id').val(satuan);
                             });
-                            callback(satuan ? satuan.satuan : '');
-                        });
-                    }
+                        } else if (response && response.stok === 0) {
+                            $('#stok').val(0);
+                            $('#satuan_id').val('');
+                        }
+                    },
                 });
-            }, 500);
+
+                function getSatuanName(satuanId, callback) {
+                    $.getJSON('{{ url('api/satuan') }}', function(satuans) {
+                        var satuan = satuans.find(function(s) {
+                            return s.id === satuanId;
+                        });
+                        callback(satuan ? satuan.satuan : '');
+                    });
+                }
+            });
         });
     </script>
 

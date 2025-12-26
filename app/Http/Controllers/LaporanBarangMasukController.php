@@ -15,7 +15,10 @@ class LaporanBarangMasukController extends Controller
      */
     public function index()
     {
-        return view('laporan-barang-masuk.index');
+        return view('laporan-barang-masuk.index', [
+            'barangs'   => \App\Models\Barang::all(),
+            'suppliers' => \App\Models\Supplier::all()
+        ]);
     }
 
     /**
