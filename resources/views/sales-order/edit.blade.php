@@ -37,14 +37,12 @@
                                 <div class="form-group">
                                     <label>Status</label>
                                     <select name="status" class="form-control select2" required>
-                                        <option value="draft" {{ $salesOrder->status == 'draft' ? 'selected' : '' }}>Draft
-                                        </option>
-                                        <option value="confirmed" {{ $salesOrder->status == 'confirmed' ? 'selected' : '' }}>
-                                            Confirmed</option>
-                                        <option value="shipped" {{ $salesOrder->status == 'shipped' ? 'selected' : '' }}>
-                                            Shipped</option>
-                                        <option value="completed" {{ $salesOrder->status == 'completed' ? 'selected' : '' }}>
-                                            Completed</option>
+                                        <option value="draft" {{ $salesOrder->status == 'draft' ? 'selected' : '' }}>Draft</option>
+                                        <option value="confirmed" {{ $salesOrder->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                        <option value="processing" {{ $salesOrder->status == 'processing' ? 'selected' : '' }}>Processing (Packing)</option>
+                                        <option value="shipped" {{ $salesOrder->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                        <option value="completed" {{ $salesOrder->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                        <option value="cancelled" {{ $salesOrder->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                     </select>
                                 </div>
                             </div>

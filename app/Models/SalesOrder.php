@@ -35,4 +35,9 @@ class SalesOrder extends Model
     {
         return $this->hasMany(SalesOrderDetail::class);
     }
+
+    public function histories()
+    {
+        return $this->hasMany(SalesOrderHistory::class)->latest();
+    }
 }

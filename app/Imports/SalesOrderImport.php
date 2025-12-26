@@ -10,53 +10,87 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class SalesOrderImport implements ToCollection, WithHeadingRow
 {
     public function collection(Collection $rows)
     {
-        // Group by sales_order_no if provided, or we might need to generate them.
-        // The user said: "Validasi duplicate sales_order_no".
-        // Let's assume each row is a detail, and we group them by some criteria or they provide the SO number.
+        // Filter out empty rows and format dates
+        $rows = $rows->filter(function ($row) {
+            return !empty($row['customer_id']) && !empty($row['product_id']) && !empty($row['order_date']);
+        })->map(function ($row) {
+            // Handle Excel serial date (e.g., 46018)
+            if (is_numeric($row['order_date'])) {
+                $row['order_date'] = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['order_date']))->format('Y-m-d');
+            } else {
+                try {
+                    $row['order_date'] = Carbon::parse($row['order_date'])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    // Fallback to today if parsing fails
+                    $row['order_date'] = date('Y-m-d');
+                }
+            }
+            return $row;
+        });
 
-        $groupedOrders = $rows->groupBy('sales_order_no');
+        // Group by both customer_id and order_date
+        $groupedOrders = $rows->groupBy(function ($item) {
+            return $item['customer_id'] . '|' . $item['order_date'];
+        });
 
-        foreach ($groupedOrders as $soNo => $details) {
-            DB::transaction(function () use ($soNo, $details) {
+        foreach ($groupedOrders as $key => $details) {
+            DB::transaction(function () use ($details) {
                 $firstRow = $details->first();
+                $customerId = $firstRow['customer_id'];
+                $orderDate = $firstRow['order_date'];
 
                 // Validate customer
-                $customer = Customer::find($firstRow['customer_id']);
-                if (!$customer)
+                $customer = Customer::find($customerId);
+                if (!$customer) {
                     return;
+                }
+
+                // Generate SO Number
+                $soNumber = $this->generateSoNumber($orderDate);
 
                 $salesOrder = SalesOrder::create([
-                    'sales_order_no' => $soNo ?? $this->generateSoNumber($firstRow['order_date']),
-                    'customer_id' => $firstRow['customer_id'],
-                    'order_date' => $firstRow['order_date'],
+                    'sales_order_no' => $soNumber,
+                    'customer_id' => $customerId,
+                    'order_date' => $orderDate,
                     'status' => 'draft',
-                    'total_amount' => 0, // Will update after details
+                    'total_amount' => 0,
                 ]);
 
                 $totalAmount = 0;
                 foreach ($details as $row) {
                     $barang = Barang::find($row['product_id']);
-                    if (!$barang)
+                    if (!$barang) {
                         continue;
+                    }
 
-                    $totalPrice = $row['quantity'] * $row['unit_price'];
+                    $unitPrice = $barang->price;
+                    $totalPrice = $row['quantity'] * $unitPrice;
+
                     SalesOrderDetail::create([
                         'sales_order_id' => $salesOrder->id,
                         'barang_id' => $row['product_id'],
                         'quantity' => $row['quantity'],
-                        'unit_price' => $row['unit_price'],
+                        'unit_price' => $unitPrice,
                         'total_price' => $totalPrice,
                     ]);
                     $totalAmount += $totalPrice;
                 }
 
                 $salesOrder->update(['total_amount' => $totalAmount]);
+
+                // Record history
+                \App\Models\SalesOrderHistory::create([
+                    'sales_order_id' => $salesOrder->id,
+                    'user_id' => auth()->id(),
+                    'action' => 'Created Sales Order (via Import)',
+                    'reason' => 'Imported from Excel file'
+                ]);
             });
         }
     }
@@ -64,6 +98,7 @@ class SalesOrderImport implements ToCollection, WithHeadingRow
     private function generateSoNumber($date)
     {
         $dateStr = date('Ymd', strtotime($date));
+
         $lastOrder = SalesOrder::where('sales_order_no', 'like', "SO-$dateStr-%")
             ->orderBy('sales_order_no', 'desc')
             ->first();

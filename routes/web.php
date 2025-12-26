@@ -107,6 +107,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/sales-order/export', [SalesOrderController::class, 'export'])->name('sales-order.export');
         Route::post('/sales-order/import', [SalesOrderController::class, 'import'])->name('sales-order.import');
         Route::get('/sales-order/download-template', [SalesOrderController::class, 'downloadTemplate'])->name('sales-order.download-template');
+        Route::post('/sales-order/{sales_order}/post', [SalesOrderController::class, 'postToGudang'])->name('sales-order.post');
+        Route::post('/sales-order/{sales_order}/verify', [SalesOrderController::class, 'verify'])->name('sales-order.verify');
+        Route::post('/sales-order/{sales_order}/reject', [SalesOrderController::class, 'reject'])->name('sales-order.reject');
+        Route::delete('/sales-order/detail/{detail}', [SalesOrderController::class, 'deleteDetail'])->name('sales-order.delete-detail');
+        Route::put('/sales-order/detail/{detail}', [SalesOrderController::class, 'updateDetail'])->name('sales-order.update-detail');
         Route::resource('/sales-order', SalesOrderController::class);
     });
 });

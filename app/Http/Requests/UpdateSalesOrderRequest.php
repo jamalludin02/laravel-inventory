@@ -16,7 +16,7 @@ class UpdateSalesOrderRequest extends FormRequest
         return [
             'customer_id' => 'required|exists:customers,id',
             'order_date' => 'required|date',
-            'status' => 'required|in:draft,confirmed,shipped,completed',
+            'status' => 'required|in:draft,post,confirmed,processing,shipped,completed,cancelled',
             'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
             'items.*.quantity' => 'required|integer|min:1',
