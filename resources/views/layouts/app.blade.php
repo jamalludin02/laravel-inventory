@@ -112,7 +112,7 @@
           </div>
 
           <ul class="sidebar-menu">
-            @if (auth()->user()->role->role === 'kepala gudang')
+            @if (auth()->user()->role->role === 'kepala_gudang')
               <li class="sidebar-item">
                 <a class="nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}" href="/">
                   <i class="fas fa-fire"></i> <span class="align-middle">Dashboard</span>
@@ -134,7 +134,7 @@
                     class="fa fa-solid fa-list"></i><span>Aktivitas User</span></a></li>
             @endif
 
-            @if (auth()->user()->role->role === 'superadmin')
+            @if (auth()->user()->role->role === 'super_admin')
               <li class="sidebar-item">
                 <a class="nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}" href="/">
                   <i class="fas fa-fire"></i> <span class="align-middle">Dashboard</span>
@@ -195,7 +195,7 @@
 
             @endif
 
-            @if (auth()->user()->role->role === 'admin gudang')
+            @if (auth()->user()->role->role === 'admin_gudang' || auth()->user()->role->role === 'staff_gudang' || auth()->user()->role->role === 'admin_sales')
               <li class="sidebar-item">
                 <a class="sidebar-link nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}"
                   href="/">

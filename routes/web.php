@@ -35,8 +35,8 @@ use App\Http\Controllers\SalesOrderController;
 
 
 Route::middleware('auth')->group(function () {
-
-    Route::group(['middleware' => 'checkRole:superadmin'], function () {
+    // dd(auth()->user());
+    Route::group(['middleware' => 'checkRole:super_admin'], function () {
         Route::get('/data-pengguna/get-data', [ManajemenUserController::class, 'getDataPengguna']);
         Route::get('/api/role/', [ManajemenUserController::class, 'getRole']);
         Route::get('/data-pengguna/switch/{id}', [ManajemenUserController::class, 'switchUser'])->name('data-pengguna.switch');
@@ -48,12 +48,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/switch-back', [ManajemenUserController::class, 'switchBack'])->name('data-pengguna.switch-back');
 
-    Route::group(['middleware' => 'checkRole:superadmin,kepala gudang'], function () {
+    Route::group(['middleware' => 'checkRole:super_admin,kepala_gudang'], function () {
         Route::resource('/aktivitas-user', ActivityLogController::class);
 
     });
 
-    Route::group(['middleware' => 'checkRole:kepala gudang,superadmin,admin gudang'], function () {
+    Route::group(['middleware' => 'checkRole:kepala_gudang,super_admin,admin_gudang,staff_gudang,admin_sales'], function () {
         Route::resource('/dashboard', DashboardController::class);
         Route::get('/', [DashboardController::class, 'index']);
 
@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    Route::group(['middleware' => 'checkRole:superadmin,admin gudang'], function () {
+    Route::group(['middleware' => 'checkRole:super_admin,admin_gudang,staff_gudang,admin_sales'], function () {
         Route::get('/barang/get-data', [BarangController::class, 'getDataBarang']);
         Route::resource('/barang', BarangController::class);
 

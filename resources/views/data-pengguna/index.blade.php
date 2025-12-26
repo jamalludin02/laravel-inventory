@@ -39,7 +39,7 @@
 
     <!-- Datatables Jquery -->
     <script>
-        const isSuperAdmin = {{ auth()->user()->role->role === 'superadmin' ? 'true' : 'false' }};
+        const isSuperAdmin = {{ auth()->user()->role->role === 'super_admin' ? 'true' : 'false' }};
         $(document).ready(function () {
             $('#table_id').DataTable({
                 paging: true
@@ -56,18 +56,18 @@
                     $('#table_id').DataTable().clear();
                     $.each(response.data, function (key, value) {
                         let pengguna = `
-                            <tr class="pengguna-row" id="index_${value.id}">
-                                <td>${counter++}</td>
-                                <td>${value.name}</td>
-                                <td>${value.username}</td>
-                                <td>${value.role.role}</td>
-                                <td>
-                                    <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                    <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                    ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-undo"></i> </a>` : ''}
-                                </td>
-                            </tr>
-                            `;
+                                <tr class="pengguna-row" id="index_${value.id}">
+                                    <td>${counter++}</td>
+                                    <td>${value.name}</td>
+                                    <td>${value.username}</td>
+                                    <td>${value.role.role}</td>
+                                    <td>
+                                        <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                        <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                        ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-undo"></i> </a>` : ''}
+                                    </td>
+                                </tr>
+                                `;
                         $('#table_id').DataTable().row.add($(pengguna)).draw(false);
                     });
                 }
@@ -128,18 +128,18 @@
                             $.each(response.data, function (key, value) {
                                 getRoleName(value.role_id, function (role) {
                                     let pengguna = `
-                                <tr class="pengguna-row" id="index_${value.id}">
-                                    <td>${counter++}</td>
-                                    <td>${value.name}</td>
-                                    <td>${value.username}</td>
-                                    <td>${role}</td>
-                                    <td>
-                                        ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
-                                        <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                        <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                    </td>
-                                </tr>
-                                `;
+                                    <tr class="pengguna-row" id="index_${value.id}">
+                                        <td>${counter++}</td>
+                                        <td>${value.name}</td>
+                                        <td>${value.username}</td>
+                                        <td>${role}</td>
+                                        <td>
+                                            ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                            <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                            <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                        </td>
+                                    </tr>
+                                    `;
                                     $('#table_id').DataTable().row.add($(
                                         pengguna)).draw(false);
                                 });
@@ -285,18 +285,18 @@
                             $.each(response.data, function (key, value) {
                                 getRoleName(value.role_id, function (role) {
                                     let pengguna = `
-                                    <tr class="pengguna-row" id="index_${value.id}">
-                                        <td>${counter++}</td>
-                                        <td>${value.name}</td>
-                                        <td>${value.username}</td>
-                                        <td>${role}</td>
-                                        <td>
-                                            ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
-                                            <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                            <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                        </td>
-                                    </tr>
-                                    `;
+                                        <tr class="pengguna-row" id="index_${value.id}">
+                                            <td>${counter++}</td>
+                                            <td>${value.name}</td>
+                                            <td>${value.username}</td>
+                                            <td>${role}</td>
+                                            <td>
+                                                ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                                <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                            </td>
+                                        </tr>
+                                        `;
                                     $('#table_id').DataTable().row.add($(
                                         pengguna)).draw(false);
                                 });
@@ -400,18 +400,18 @@
                                         getRoleName(value.role_id, function (
                                             role) {
                                             let pengguna = `
-                                            <tr class="pengguna-row" id="index_${value.id}">
-                                                <td>${counter++}</td>
-                                                <td>${value.name}</td>
-                                                <td>${value.username}</td>
-                                                <td>${role}</td>
-                                                <td>
-                                                    ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
-                                                    <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                                    <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                                </td>
-                                            </tr>
-                                            `;
+                                                <tr class="pengguna-row" id="index_${value.id}">
+                                                    <td>${counter++}</td>
+                                                    <td>${value.name}</td>
+                                                    <td>${value.username}</td>
+                                                    <td>${role}</td>
+                                                    <td>
+                                                        ${isSuperAdmin ? `<a href="/data-pengguna/switch/${value.id}" class="btn btn-icon btn-primary btn-lg mb-2"><i class="fas fa-user-tag"></i> </a>` : ''}
+                                                        <a href="javascript:void(0)" id="button_edit_pengguna" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                        <a href="javascript:void(0)" id="button_hapus_pengguna" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                    </td>
+                                                </tr>
+                                                `;
                                             $('#table_id')
                                                 .DataTable().row
                                                 .add($(pengguna))

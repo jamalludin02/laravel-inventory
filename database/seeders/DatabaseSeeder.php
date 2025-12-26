@@ -22,24 +22,24 @@ class DatabaseSeeder extends Seeder
         // ROLES
         Role::insert([
             [
-                'role' => 'superadmin',
+                'role' => 'super_admin',
                 'deskripsi' => 'Superadmin memiliki kendali penuh pada aplikasi termasuk manajemen User',
             ],
             [
-                'role' => 'kepala gudang',
+                'role' => 'kepala_gudang',
                 'deskripsi' => 'Kepala gudang memiliki akses untuk mengelola dan mencetak laporan stok, barang masuk, dan barang keluar',
             ],
             [
-                'role' => 'admin gudang',
+                'role' => 'admin_gudang',
                 'deskripsi' => 'Admin gudang memiliki akses untuk mengelola stok, barang masuk, barang keluar dan laporannya',
             ],
             [
-                'role' => 'admin pembelian',
-                'deskripsi' => 'Admin pembelian mengelola data supplier dan pengadaan barang',
+                'role' => 'staff_gudang',
+                'deskripsi' => 'Staff gudang memiliki akses terbatas untuk mengelola stok',
             ],
             [
-                'role' => 'admin penjualan',
-                'deskripsi' => 'Admin penjualan mengelola data customer dan distribusi barang',
+                'role' => 'admin_sales',
+                'deskripsi' => 'Admin sales mengelola data customer dan distribusi barang',
             ],
         ]);
 
