@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
-use App\Models\SalesOrder;
+use App\Models\Order;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class SalesOrderExport implements FromCollection, WithHeadings, WithMapping
+class OrderExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $filters;
 
@@ -18,7 +18,7 @@ class SalesOrderExport implements FromCollection, WithHeadings, WithMapping
 
     public function collection()
     {
-        $query = SalesOrder::with(['customer', 'details.barang']);
+        $query = Order::with(['customer', 'details.barang']);
 
         if (!empty($this->filters['start_date'])) {
             $query->whereDate('order_date', '>=', $this->filters['start_date']);
@@ -42,7 +42,7 @@ class SalesOrderExport implements FromCollection, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'sales_order_no',
+            'order_no',
             'customer_id',
             'customer_name',
             'order_date',
@@ -54,15 +54,15 @@ class SalesOrderExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($salesOrder): array
+    public function map($order): array
     {
         $rows = [];
-        foreach ($salesOrder->details as $detail) {
+        foreach ($order->details as $detail) {
             $rows[] = [
-                $salesOrder->sales_order_no,
-                $salesOrder->customer_id,
-                $salesOrder->customer->customer,
-                $salesOrder->order_date,
+                $order->order_no,
+                $order->customer_id,
+                $order->customer->customer,
+                $order->order_date,
                 $detail->barang_id,
                 $detail->barang->nama_barang,
                 $detail->quantity,

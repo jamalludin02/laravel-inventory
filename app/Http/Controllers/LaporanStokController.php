@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use Dompdf\Dompdf;
 use App\Models\Barang;
 use App\Models\Satuan;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\OrderHistory;
+use App\Models\OrderProduk;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class LaporanStokController extends Controller
 {
@@ -25,35 +31,39 @@ class LaporanStokController extends Controller
     {
         $selectedOption = $request->input('opsi');
 
-        if($selectedOption == 'semua'){
-             $barangs = Barang::all();
-        } elseif ($selectedOption == 'minimum'){
-             $barangs = Barang::where('stok', '<=', 10)->get();
-        } elseif ($selectedOption == 'stok-habis'){
-             $barangs = Barang::where('stok', 0)->get();
-        } else {
-             $barangs = Barang::all();
+        $query = Barang::with('satuan')
+            ->leftJoin('safety_stock', 'barangs.id', '=', 'safety_stock.barang_id')
+            ->select('barangs.*', 'safety_stock.safety_stock');
+
+        if ($selectedOption == 'minimum') {
+            $query->whereRaw('barangs.stok <= safety_stock.safety_stock');
+        } elseif ($selectedOption == 'stok-habis') {
+            $query->where('stok', 0);
         }
- 
+
+        $barangs = $query->get();
+
         return response()->json($barangs);
     }
 
     /**
      * Print Data 
-    */
+     */
     public function printStok(Request $request)
     {
         $selectedOption = $request->input('opsi');
 
-        if ($selectedOption == 'semua') {
-            $barangs = Barang::all();
-        } elseif ($selectedOption == 'minimum') {
-            $barangs = Barang::where('stok', '<=', 10)->get();
+        $query = Barang::with('satuan')
+            ->leftJoin('safety_stock', 'barangs.id', '=', 'safety_stock.barang_id')
+            ->select('barangs.*', 'safety_stock.safety_stock');
+
+        if ($selectedOption == 'minimum') {
+            $query->whereRaw('barangs.stok <= safety_stock.safety_stock');
         } elseif ($selectedOption == 'stok-habis') {
-            $barangs = Barang::where('stok', 0)->get();
-        } else {
-            $barangs = Barang::all();
+            $query->where('stok', 0);
         }
+
+        $barangs = $query->get();
 
         // Generate PDF
         $dompdf = new Dompdf();

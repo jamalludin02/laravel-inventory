@@ -5,7 +5,7 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class SalesOrderTemplateExport implements FromArray, WithHeadings
+class OrderTemplateExport implements FromArray, WithHeadings
 {
     public function headings(): array
     {

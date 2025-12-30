@@ -2,17 +2,18 @@
 
 namespace App\Imports;
 
-use App\Models\SalesOrder;
-use App\Models\SalesOrderDetail;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Customer;
 use App\Models\Barang;
+use App\Models\OrderHistory;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class SalesOrderImport implements ToCollection, WithHeadingRow
+class OrderImport implements ToCollection, WithHeadingRow
 {
     public function collection(Collection $rows)
     {
@@ -51,11 +52,11 @@ class SalesOrderImport implements ToCollection, WithHeadingRow
                     return;
                 }
 
-                // Generate SO Number
-                $soNumber = $this->generateSoNumber($orderDate);
+                // Generate Order Number
+                $orderNumber = $this->generateOrderNumber($orderDate);
 
-                $salesOrder = SalesOrder::create([
-                    'sales_order_no' => $soNumber,
+                $order = Order::create([
+                    'order_no' => $orderNumber,
                     'customer_id' => $customerId,
                     'order_date' => $orderDate,
                     'status' => 'draft',
@@ -72,8 +73,8 @@ class SalesOrderImport implements ToCollection, WithHeadingRow
                     $unitPrice = $barang->price;
                     $totalPrice = $row['quantity'] * $unitPrice;
 
-                    SalesOrderDetail::create([
-                        'sales_order_id' => $salesOrder->id,
+                    OrderDetail::create([
+                        'order_id' => $order->id,
                         'barang_id' => $row['product_id'],
                         'quantity' => $row['quantity'],
                         'unit_price' => $unitPrice,
@@ -82,33 +83,33 @@ class SalesOrderImport implements ToCollection, WithHeadingRow
                     $totalAmount += $totalPrice;
                 }
 
-                $salesOrder->update(['total_amount' => $totalAmount]);
+                $order->update(['total_amount' => $totalAmount]);
 
                 // Record history
-                \App\Models\SalesOrderHistory::create([
-                    'sales_order_id' => $salesOrder->id,
+                OrderHistory::create([
+                    'order_id' => $order->id,
                     'user_id' => auth()->id(),
-                    'action' => 'Created Sales Order (via Import)',
+                    'action' => 'Created Order (via Import)',
                     'reason' => 'Imported from Excel file'
                 ]);
             });
         }
     }
 
-    private function generateSoNumber($date)
+    private function generateOrderNumber($date)
     {
         $dateStr = date('Ymd', strtotime($date));
 
-        $lastOrder = SalesOrder::where('sales_order_no', 'like', "SO-$dateStr-%")
-            ->orderBy('sales_order_no', 'desc')
+        $lastOrder = Order::where('order_no', 'like', "ORD-$dateStr-%")
+            ->orderBy('order_no', 'desc')
             ->first();
 
         $nextNumber = 1;
         if ($lastOrder) {
-            $lastNumber = (int) substr($lastOrder->sales_order_no, -3);
+            $lastNumber = (int) substr($lastOrder->order_no, -3);
             $nextNumber = $lastNumber + 1;
         }
 
-        return "SO-$dateStr-" . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        return "ORD-$dateStr-" . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 }

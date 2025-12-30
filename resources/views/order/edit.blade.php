@@ -3,14 +3,14 @@
 @section('content')
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('sales-order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Edit Sales Order: {{ $salesOrder->sales_order_no }}</h1>
+        <h1>Edit Order: {{ $order->order_no }}</h1>
     </div>
 
     <div class="row">
         <div class="col-12">
-            <form action="{{ route('sales-order.update', $salesOrder->id) }}" method="POST">
+            <form action="{{ route('order.update', $order->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="card">
@@ -21,7 +21,7 @@
                                     <label>Customer</label>
                                     <select name="customer_id" class="form-control select2" required>
                                         @foreach($customers as $customer)
-                                            <option value="{{ $customer->id }}" {{ $salesOrder->customer_id == $customer->id ? 'selected' : '' }}>{{ $customer->customer }}</option>
+                                            <option value="{{ $customer->id }}" {{ $order->customer_id == $customer->id ? 'selected' : '' }}>{{ $customer->customer }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -30,19 +30,24 @@
                                 <div class="form-group">
                                     <label>Tanggal Order</label>
                                     <input type="date" name="order_date" class="form-control"
-                                        value="{{ $salesOrder->order_date }}" required>
+                                        value="{{ $order->order_date }}" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Status</label>
                                     <select name="status" class="form-control select2" required>
-                                        <option value="draft" {{ $salesOrder->status == 'draft' ? 'selected' : '' }}>Draft</option>
-                                        <option value="confirmed" {{ $salesOrder->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                        <option value="processing" {{ $salesOrder->status == 'processing' ? 'selected' : '' }}>Processing (Packing)</option>
-                                        <option value="shipped" {{ $salesOrder->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                                        <option value="completed" {{ $salesOrder->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                        <option value="cancelled" {{ $salesOrder->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        <option value="draft" {{ $order->status == 'draft' ? 'selected' : '' }}>Draft</option>
+                                        <option value="confirmed" {{ $order->status == 'confirmed' ? 'selected' : '' }}>
+                                            Confirmed</option>
+                                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>
+                                            Processing (Packing)</option>
+                                        <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped
+                                        </option>
+                                        <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>
+                                            Completed</option>
+                                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>
+                                            Cancelled</option>
                                     </select>
                                 </div>
                             </div>
@@ -63,7 +68,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($salesOrder->details as $index => $detail)
+                                    @foreach($order->details as $index => $detail)
                                         <tr class="item-row">
                                             <td>
                                                 <select name="items[{{ $index }}][barang_id]"
@@ -111,13 +116,13 @@
                                 <div class="form-group">
                                     <label>Grand Total</label>
                                     <input type="text" id="grand-total" class="form-control"
-                                        value="{{ $salesOrder->total_amount }}" readonly>
+                                        value="{{ $order->total_amount }}" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-primary">Update Sales Order</button>
+                        <button type="submit" class="btn btn-primary">Update Order</button>
                     </div>
                 </div>
             </form>
@@ -130,36 +135,36 @@
         $(document).ready(function () {
             $('.select2').select2({ width: '100%' });
 
-            let rowIndex = {{ count($salesOrder->details) }};
+            let rowIndex = {{ count($order->details) }};
 
             $('#btn-add-row').click(function () {
                 let newRow = `
-                                        <tr class="item-row">
-                                            <td>
-                                                <select name="items[${rowIndex}][barang_id]" class="form-control select2 product-select" required>
-                                                    <option value="">Pilih Produk</option>
-                                                    @foreach($barangs as $barang)
-                                                        <option value="{{ $barang->id }}" data-price="{{ $barang->price }}" data-unit="{{ $barang->satuan->satuan ?? '-' }}">{{ $barang->nama_barang }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="items[${rowIndex}][quantity]" class="form-control qty-input" min="1" required>
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control unit-input" readonly disabled>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="items[${rowIndex}][unit_price]" class="form-control price-input" min="0" required readonly>
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control total-input" readonly>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger btn-remove-row"><i class="fa fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                    `;
+                                            <tr class="item-row">
+                                                <td>
+                                                    <select name="items[${rowIndex}][barang_id]" class="form-control select2 product-select" required>
+                                                        <option value="">Pilih Produk</option>
+                                                        @foreach($barangs as $barang)
+                                                            <option value="{{ $barang->id }}" data-price="{{ $barang->price }}" data-unit="{{ $barang->satuan->satuan ?? '-' }}">{{ $barang->nama_barang }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="items[${rowIndex}][quantity]" class="form-control qty-input" min="1" required>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control unit-input" readonly disabled>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="items[${rowIndex}][unit_price]" class="form-control price-input" min="0" required readonly>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control total-input" readonly>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-danger btn-remove-row"><i class="fa fa-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                        `;
                 $('#items-table tbody').append(newRow);
                 $('#items-table tbody tr:last .select2').select2({ width: '100%' });
                 rowIndex++;

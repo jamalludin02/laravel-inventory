@@ -55,15 +55,12 @@ class BarangController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_barang' => 'required',
             'deskripsi' => 'required',
-            'stok_minimum' => 'required|numeric',
             'price' => 'required|numeric|min:0',
             'jenis_id' => 'required',
             'satuan_id' => 'required'
         ], [
             'nama_barang.required' => 'Form Nama Barang Wajib Di Isi !',
             'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !',
-            'stok_minimum.required' => 'Form Stok Minimum Wajib Di Isi !',
-            'stok_minimum.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
             'price.required' => 'Form Harga Wajib Di Isi !',
             'price.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
             'jenis_id.required' => 'Pilih Jenis Barang !',
@@ -86,7 +83,6 @@ class BarangController extends Controller
             'deskripsi' => $request->deskripsi,
             'user_id' => $request->user_id,
             'kode_barang' => $request->kode_barang,
-            'stok_minimum' => $request->stok_minimum,
             'price' => $request->price,
             'jenis_id' => $request->jenis_id,
             'satuan_id' => $request->satuan_id
@@ -131,15 +127,12 @@ class BarangController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_barang' => 'required',
             'deskripsi' => 'required',
-            'stok_minimum' => 'required|numeric',
             'price' => 'required|numeric|min:0',
             'jenis_id' => 'required',
             'satuan_id' => 'required'
         ], [
             'nama_barang.required' => 'Form Nama Barang Wajib Di Isi !',
             'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !',
-            'stok_minimum.required' => 'Form Stok Minimum Wajib Di Isi !',
-            'stok_minimum.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
             'price.required' => 'Form Harga Wajib Di Isi !',
             'price.numeric' => 'Gunakan Angka Untuk Mengisi Form Ini !',
             'jenis_id.required' => 'Pilih Jenis Barang !',
@@ -152,7 +145,6 @@ class BarangController extends Controller
 
         $barang->update([
             'nama_barang' => $request->nama_barang,
-            'stok_minimum' => $request->stok_minimum,
             'price' => $request->price,
             'deskripsi' => $request->deskripsi,
             'user_id' => auth()->user()->id,

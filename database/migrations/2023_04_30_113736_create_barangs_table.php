@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('barangs', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('kode_barang')->unique();
             $table->string('nama_barang');
             $table->string('deskripsi');
@@ -23,6 +22,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->foreignId('jenis_id');
             $table->foreignId('satuan_id');
+            $table->timestamps();
         });
     }
 

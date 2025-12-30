@@ -22,6 +22,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Transaksi</th>
+                                    <th>Order</th>
                                     <th>Tanggal Keluar</th>
                                     <th>Nama Barang</th>
                                     <th>Stok Keluar</th>
@@ -40,12 +41,12 @@
 
     <!-- Select2 Autocomplete -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.select2').select2({
                 width: '100%'
             });
 
-            $('#nama_barang').on('change', function() {
+            $('#nama_barang').on('change', function () {
                 var selectedOption = $(this).find('option:selected');
                 var nama_barang = selectedOption.text();
 
@@ -55,11 +56,11 @@
                     data: {
                         nama_barang: nama_barang,
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response && (response.stok || response.stok === 0) &&
                             response.satuan_id) {
                             $('#stok').val(response.stok);
-                            getSatuanName(response.satuan_id, function(satuan) {
+                            getSatuanName(response.satuan_id, function (satuan) {
                                 $('#satuan_id').val(satuan);
                             });
                         } else if (response && response.stok === 0) {
@@ -70,8 +71,8 @@
                 });
 
                 function getSatuanName(satuanId, callback) {
-                    $.getJSON('{{ url('api/satuan') }}', function(satuans) {
-                        var satuan = satuans.find(function(s) {
+                    $.getJSON('{{ url('api/satuan') }}', function (satuans) {
+                        var satuan = satuans.find(function (s) {
                             return s.id === satuanId;
                         });
                         callback(satuan ? satuan.satuan : '');
@@ -83,7 +84,7 @@
 
     <!-- Datatable -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#table_id').DataTable({
                 paging: true
             });
@@ -92,24 +93,25 @@
                 url: "/barang-keluar/get-data",
                 type: "GET",
                 dataType: 'JSON',
-                success: function(response) {
+                success: function (response) {
                     let counter = 1;
                     $('#table_id').DataTable().clear();
-                    $.each(response.data, function(key, value) {
+                    $.each(response.data, function (key, value) {
                         let customer = getCustomerName(response.customer, value.customer_id);
                         let barangKeluar = `
-                <tr class="barang-row" id="index_${value.id}">
-                    <td>${counter++}</td>   
-                    <td>${value.kode_transaksi}</td>
-                    <td>${value.tanggal_keluar}</td>
-                    <td>${value.nama_barang}</td>
-                    <td>${value.jumlah_keluar}</td>
-                    <td>${customer}</td>
-                    <td>       
-                        <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                    </td>
-                </tr>
-            `;
+                            <tr class="barang-row" id="index_${value.id}">
+                                <td>${counter++}</td>   
+                                <td>${value.kode_transaksi}</td>
+                                <td>${value.order_no || '-'}</td>
+                                <td>${value.tanggal_keluar}</td>
+                                <td>${value.nama_barang}</td>
+                                <td>${value.jumlah_keluar}</td>
+                                <td>${customer}</td>
+                                <td>       
+                                    <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                </td>
+                            </tr>
+                        `;
                         $('#table_id').DataTable().row.add($(barangKeluar)).draw(false);
                     });
 
@@ -133,19 +135,19 @@
             return kodeTransaksi;
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             generateKodeTransaksi();
         });
     </script>
 
     <!-- Show Modal Tambah Jenis Barang -->
     <script>
-        $('body').on('click', '#button_tambah_barangKeluar', function() {
+        $('body').on('click', '#button_tambah_barangKeluar', function () {
             $('#modal_tambah_barangKeluar').modal('show');
             $('#kode_transaksi').val(generateKodeTransaksi());
         });
 
-        $('#store').click(function(e) {
+        $('#store').click(function (e) {
             e.preventDefault();
 
             let kode_transaksi = $('#kode_transaksi').val();
@@ -161,6 +163,7 @@
             formData.append('nama_barang', nama_barang);
             formData.append('jumlah_keluar', jumlah_keluar);
             formData.append('customer_id', customer_id);
+            formData.append('order_no', $('#order_no_input').val());
             formData.append('_token', token);
 
             $.ajax({
@@ -171,7 +174,7 @@
                 contentType: false,
                 processData: false,
 
-                success: function(response) {
+                success: function (response) {
 
                     Swal.fire({
                         type: 'success',
@@ -185,27 +188,28 @@
                         url: '/barang-keluar/get-data',
                         type: "GET",
                         cache: false,
-                        success: function(response) {
+                        success: function (response) {
                             $('#table-barangs').html('');
 
                             let counter = 1;
                             $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
+                            $.each(response.data, function (key, value) {
                                 let customer = getCustomerName(response.customer,
                                     value.customer_id);
                                 let barangKeluar = `
-                                <tr class="barang-row" id="index_${value.id}">
-                                    <td>${counter++}</td>   
-                                    <td>${value.kode_transaksi}</td>
-                                    <td>${value.tanggal_keluar}</td>
-                                    <td>${value.nama_barang}</td>
-                                    <td>${value.jumlah_keluar}</td>
-                                    <td>${customer}</td>
-                                    <td>
-                                        <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                    </td>
-                                </tr>
-                             `;
+                                            <tr class="barang-row" id="index_${value.id}">
+                                                <td>${counter++}</td>   
+                                                <td>${value.kode_transaksi}</td>
+                                                <td>${value.order_no || '-'}</td>
+                                                <td>${value.tanggal_keluar}</td>
+                                                <td>${value.nama_barang}</td>
+                                                <td>${value.jumlah_keluar}</td>
+                                                <td>${customer}</td>
+                                                <td>
+                                                    <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                </td>
+                                            </tr>
+                                         `;
                                 $('#table_id').DataTable().row.add($(barangKeluar))
                                     .draw(false);
                             });
@@ -214,6 +218,7 @@
                             $('#nama_barang').val('');
                             $('#jumlah_keluar').val('');
                             $('#stok').val('');
+                            $('#order_no_input').val('');
 
                             $('#modal_tambah_barangKeluar').modal('hide');
 
@@ -226,16 +231,16 @@
                             }
                         },
 
-                        error: function() {
+                        error: function () {
                             //
                         }
 
                     })
                 },
 
-                error: function(error) {
+                error: function (error) {
                     // Menyembunyikan semua alert error
-                    $('#modal_tambah_barangKeluar').on('hidden.bs.modal', function() {
+                    $('#modal_tambah_barangKeluar').on('hidden.bs.modal', function () {
                         // Mengatur ulang tampilan alert error
                         $('.alert').removeClass('d-block').addClass('d-none');
                     });
@@ -283,7 +288,7 @@
 
     <!-- Hapus Data Barang -->
     <script>
-        $('body').on('click', '#button_hapus_barangKeluar', function() {
+        $('body').on('click', '#button_hapus_barangKeluar', function () {
             let barangKeluar_id = $(this).data('id');
             let token = $("meta[name='csrf-token']").attr("content");
 
@@ -303,7 +308,7 @@
                         data: {
                             "_token": token
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 type: 'success',
                                 icon: 'success',
@@ -317,32 +322,33 @@
                                 url: "/barang-keluar/get-data",
                                 type: "GET",
                                 dataType: 'JSON',
-                                success: function(response) {
+                                success: function (response) {
                                     let counter = 1;
                                     $('#table_id').DataTable().clear();
-                                    $.each(response.data, function(key, value) {
+                                    $.each(response.data, function (key, value) {
                                         let customer = getCustomerName(
                                             response.customer, value
                                             .customer_id);
                                         let barangKeluar = `
-                                        <tr class="barang-row" id="index_${value.id}">
-                                            <td>${counter++}</td>   
-                                            <td>${value.kode_transaksi}</td>
-                                            <td>${value.tanggal_keluar}</td>
-                                            <td>${value.nama_barang}</td>
-                                            <td>${value.jumlah_keluar}</td>
-                                            <td>${customer}</td>
-                                            <td>       
-                                                <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                            </td>
-                                        </tr>
-                                    `;
+                                                    <tr class="barang-row" id="index_${value.id}">
+                                                        <td>${counter++}</td>   
+                                                        <td>${value.kode_transaksi}</td>
+                                                        <td>${value.order_no || '-'}</td>
+                                                        <td>${value.tanggal_keluar}</td>
+                                                        <td>${value.nama_barang}</td>
+                                                        <td>${value.jumlah_keluar}</td>
+                                                        <td>${customer}</td>
+                                                        <td>       
+                                                            <a href="javascript:void(0)" id="button_hapus_barangKeluar" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                        </td>
+                                                    </tr>
+                                                `;
                                         $('#table_id').DataTable().row.add(
                                             $(barangKeluar)).draw(false);
                                     });
 
                                     function getCustomerName(customers,
-                                    customerId) {
+                                        customerId) {
                                         let customer = customers.find(s => s.id ===
                                             customerId);
                                         return customer ? customer.customer : '';

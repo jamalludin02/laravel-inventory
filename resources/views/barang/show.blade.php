@@ -52,10 +52,6 @@
                 <input type="text" class="form-control" name="stok" id="detail_stok" disabled>
               </div>
 
-              <div class="form-group">
-                <label>Stok Minimum</label>
-                <input type="number" class="form-control" name="stok_minimum" id="detail_stok_minimum" disabled>
-              </div>
 
               <div class="form-group">
                 <label>Harga</label>

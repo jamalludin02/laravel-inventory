@@ -3,14 +3,14 @@
 @section('content')
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('sales-order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Tambah Sales Order</h1>
+        <h1>Tambah Order</h1>
     </div>
 
     <div class="row">
         <div class="col-12">
-            <form action="{{ route('sales-order.store') }}" method="POST">
+            <form action="{{ route('order.store') }}" method="POST">
                 @csrf
                 <div class="card">
                     <div class="card-body">
@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-right">
-                        <button type="submit" class="btn btn-primary">Simpan Sales Order</button>
+                        <button type="submit" class="btn btn-primary">Simpan Order</button>
                     </div>
                 </div>
             </form>

@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SalesOrderHistory extends Model
+class OrderHistory extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'sales_order_id',
+        'order_id',
         'user_id',
         'action',
         'reason'
@@ -21,8 +21,8 @@ class SalesOrderHistory extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function salesOrder()
+    public function order()
     {
-        return $this->belongsTo(SalesOrder::class);
+        return $this->belongsTo(Order::class);
     }
 }

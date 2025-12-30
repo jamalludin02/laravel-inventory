@@ -120,17 +120,17 @@
               </li>
 
               <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="laporan-stok"><i
+              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
                     class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
               <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
+                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
               </li>
               <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
+                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
                     Keluar</span></a></li>
 
               <li class="menu-header">MANAJEMEN USER</li>
-              <li><a class="nav-link {{ Request::is('aktivitas-user') ? 'active' : '' }}" href="aktivitas-user"><i
+              <li><a class="nav-link {{ Request::is('aktivitas-user') ? 'active' : '' }}" href="/aktivitas-user"><i
                     class="fa fa-solid fa-list"></i><span>Aktivitas User</span></a></li>
             @endif
 
@@ -167,22 +167,27 @@
                 </ul>
               </li>
 
-              <li class="menu-header">TRANSAKSI</li>
-              <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="barang-masuk"><i
-                    class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
-              <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="barang-keluar"><i
-                    class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
-              <li><a class="nav-link {{ Request::is('sales-order') ? 'active' : '' }}" href="sales-order"><i
+              <li class="menu-header">TRANSAKSI BARANG MASUK</li>
+              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
+                    class="fa fa-file-invoice-dollar"></i> <span>Purchase Order</span></a></li>
+              <li class="menu-header">TRANSAKSI BARANG KELUAR</li>
+              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
                     class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
+              <?php  /*
+                 <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="/barang-masuk"><i
+                       class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
+                 <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="/barang-keluar"><i
+                       class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
+                 */ ?>
 
               <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="laporan-stok"><i
+              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
                     class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
               <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
+                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
               </li>
               <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
+                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
                     Keluar</span></a></li>
 
               <li class="menu-header">MANAJEMEN USER</li>
@@ -229,22 +234,31 @@
                 </ul>
               </li>
 
-              <li class="menu-header">TRANSAKSI</li>
-              <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="barang-masuk"><i
-                    class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
-              <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="barang-keluar"><i
-                    class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
-              <li><a class="nav-link {{ Request::is('sales-order') ? 'active' : '' }}" href="sales-order"><i
+              <li class="menu-header">TRANSAKSI BARANG MASUK</li>
+              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
+                    class="fa fa-file-invoice-dollar"></i> <span>Purchase Order</span></a></li>
+              <li class="menu-header">TRANSAKSI BARANG KELUAR</li>
+              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
                     class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
 
+              <?php  /*
+                 <li class="menu-header">TRANSAKSI</li>
+                 <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="/barang-masuk"><i
+                       class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
+                 <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="/barang-keluar"><i
+                       class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
+                 <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
+                       class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
+                 */ ?>
+
               <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="laporan-stok"><i
+              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
                     class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
               <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
+                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
               </li>
               <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
+                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
                     Keluar</span></a></li>
 
             @endif
@@ -302,8 +316,8 @@
   <script type="text/javascript" src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
   <!-- Sweet Alert -->
-  @include('sweetalert::alert')
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+  @include('sweetalert::alert')
 
   <!-- Day Js Format -->
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>

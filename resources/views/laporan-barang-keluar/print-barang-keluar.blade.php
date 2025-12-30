@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
-        h1, p{
+
+        h1,
+        p {
             text-align: center;
             margin-bottom: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             text-align: center;
             padding: 8px;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
             font-weight: bold;
         }
+
         .footer {
             position: fixed;
             bottom: 20px;
@@ -30,36 +38,40 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Laporan Barang Keluar</h1>
     @if ($tanggalMulai && $tanggalSelesai)
-        <p>Rentang Tanggal : {{ $tanggalMulai }} - {{ $tanggalSelesai }}<p>
+        <p>Rentang Tanggal : {{ $tanggalMulai }} - {{ $tanggalSelesai }}
+        <p>
     @else
-        <p>Rentang Tanggal : Semua</p>
-    @endif
-    
+            <p>Rentang Tanggal : Semua</p>
+        @endif
+
 
     <table>
         <thead>
             <tr>
                 <th>No</th>
                 <th>Kode Transaksi</th>
+                <th>Sales Order</th>
                 <th>Tanggal Keluar</th>
                 <th>Nama Barang</th>
                 <th>Jumlah Keluar</th>
-                <th>Supplier</th>
+                <th>Customer</th>
             </tr>
         </thead>
         <tbody>
             @foreach($data as $index => $item)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->kode_transaksi }}</td>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->kode_transaksi }}</td>
+                <td>{{ $item->sales_order_no ?? '-' }}</td>
                 <td>{{ $item->tanggal_keluar }}</td>
-                <td>{{ $item->nama_barang}} </td>
-                <td>{{ $item->jumlah_keluar}} </td>
-                <td>{{ $item->customer->customer}} </td>
-            </tr>
+                    <td>{{ $item->nama_barang}} </td>
+                    <td>{{ $item->jumlah_keluar}} </td>
+                    <td>{{ $item->customer->customer}} </td>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -69,4 +81,5 @@
         Tanggal: {{ date('d-m-Y') }}
     </div>
 </body>
+
 </html>

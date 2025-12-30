@@ -35,7 +35,7 @@ class LaporanBarangKeluarController extends Controller
         $data = $barangKeluar->get();
 
         if (empty($tanggalMulai) && empty($tanggalSelesai)) {
-            $data = BarangKeluar::all();
+            $data = BarangKeluar::orderBy('tanggal_keluar', 'desc')->get();
         }
     
         return response()->json($data);

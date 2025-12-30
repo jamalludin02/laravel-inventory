@@ -7,22 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class SalesOrder extends Model
+class Order extends Model
 {
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'sales_order_no',
+        'order_no',
         'customer_id',
         'order_date',
         'total_amount',
-        'status'
+        'status',
+        'date_post',
+        'date_confirm',
+        'date_shipped',
+        'date_complete'
+    ];
+
+    protected $casts = [
+        'date_post' => 'datetime',
+        'date_confirm' => 'datetime',
+        'date_shipped' => 'datetime',
+        'date_complete' => 'datetime',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['sales_order_no', 'customer_id', 'order_date', 'total_amount', 'status'])
+            ->logOnly(['order_no', 'customer_id', 'order_date', 'total_amount', 'status'])
             ->logOnlyDirty();
     }
 
@@ -33,11 +44,11 @@ class SalesOrder extends Model
 
     public function details()
     {
-        return $this->hasMany(SalesOrderDetail::class);
+        return $this->hasMany(OrderDetail::class);
     }
 
     public function histories()
     {
-        return $this->hasMany(SalesOrderHistory::class)->latest();
+        return $this->hasMany(OrderHistory::class)->latest();
     }
 }

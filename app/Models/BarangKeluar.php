@@ -12,14 +12,14 @@ class BarangKeluar extends Model
     use HasFactory;
     use LogsActivity;
 
-    protected $fillable = ['kode_transaksi', 'tanggal_keluar', 'nama_barang', 'jumlah_keluar', 'customer_id', 'user_id'];
+    protected $fillable = ['kode_transaksi', 'order_no', 'tanggal_keluar', 'nama_barang', 'jumlah_keluar', 'customer_id', 'user_id'];
     protected $guarded = [''];
     protected $ignoreChangedAttributes = ['updated_at'];
 
     public function getActivitylogAttributes(): array
     {
         return array_diff($this->fillable, $this->ignoreChangedAttributes);
-    }    
+    }
 
     // Activity Log
     public function getActivitylogOptions(): LogOptions

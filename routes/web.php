@@ -20,11 +20,11 @@ use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\UbahPasswordController;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
-use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes    
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
@@ -33,30 +33,17 @@ use App\Http\Controllers\SalesOrderController;
 |
 */
 
-
 Route::middleware('auth')->group(function () {
-    // dd(auth()->user());
-    Route::group(['middleware' => 'checkRole:super_admin'], function () {
-        Route::get('/data-pengguna/get-data', [ManajemenUserController::class, 'getDataPengguna']);
-        Route::get('/api/role/', [ManajemenUserController::class, 'getRole']);
-        Route::get('/data-pengguna/switch/{id}', [ManajemenUserController::class, 'switchUser'])->name('data-pengguna.switch');
-        Route::resource('/data-pengguna', ManajemenUserController::class);
 
-        Route::get('/hak-akses/get-data', [HakAksesController::class, 'getDataRole']);
-        Route::resource('/hak-akses', HakAksesController::class);
-    });
-
-    Route::get('/switch-back', [ManajemenUserController::class, 'switchBack'])->name('data-pengguna.switch-back');
-
-    Route::group(['middleware' => 'checkRole:super_admin,kepala_gudang'], function () {
-        Route::resource('/aktivitas-user', ActivityLogController::class);
-
-    });
-
-    Route::group(['middleware' => 'checkRole:kepala_gudang,super_admin,admin_gudang,staff_gudang,admin_sales'], function () {
-        Route::resource('/dashboard', DashboardController::class);
+    // --- ALL ROLES ---
+    Route::group(['middleware' => 'checkRole:super_admin,kepala_gudang,admin_gudang,staff_gudang,admin_sales'], function () {
         Route::get('/', [DashboardController::class, 'index']);
+        Route::resource('/dashboard', DashboardController::class);
 
+        Route::get('/ubah-password', [UbahPasswordController::class, 'index']);
+        Route::post('/ubah-password', [UbahPasswordController::class, 'changePassword']);
+
+        // Reports
         Route::get('/laporan-stok/get-data', [LaporanStokController::class, 'getData']);
         Route::get('/laporan-stok/print-stok', [LaporanStokController::class, 'printStok']);
         Route::get('/api/satuan/', [LaporanStokController::class, 'getSatuan']);
@@ -71,13 +58,29 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan-barang-keluar/print-barang-keluar', [LaporanBarangKeluarController::class, 'printBarangKeluar']);
         Route::get('/api/customer/', [LaporanBarangKeluarController::class, 'getCustomer']);
         Route::resource('/laporan-barang-keluar', LaporanBarangKeluarController::class);
-
-        Route::get('/ubah-password', [UbahPasswordController::class, 'index']);
-        Route::POST('/ubah-password', [UbahPasswordController::class, 'changePassword']);
     });
 
+    // --- SUPER ADMIN ONLY ---
+    Route::group(['middleware' => 'checkRole:super_admin'], function () {
+        Route::get('/data-pengguna/get-data', [ManajemenUserController::class, 'getDataPengguna']);
+        Route::get('/api/role/', [ManajemenUserController::class, 'getRole']);
+        Route::get('/data-pengguna/switch/{id}', [ManajemenUserController::class, 'switchUser'])->name('data-pengguna.switch');
+        Route::resource('/data-pengguna', ManajemenUserController::class);
 
+        Route::get('/hak-akses/get-data', [HakAksesController::class, 'getDataRole']);
+        Route::resource('/hak-akses', HakAksesController::class);
+    });
+
+    Route::get('/switch-back', [ManajemenUserController::class, 'switchBack'])->name('data-pengguna.switch-back');
+
+    // --- SUPER ADMIN & KEPALA GUDANG ---
+    Route::group(['middleware' => 'checkRole:super_admin,kepala_gudang'], function () {
+        Route::resource('/aktivitas-user', ActivityLogController::class);
+    });
+
+    // --- OPERATIONAL (SUPER ADMIN, ADMIN GUDANG, STAFF GUDANG, ADMIN SALES) ---
     Route::group(['middleware' => 'checkRole:super_admin,admin_gudang,staff_gudang,admin_sales'], function () {
+        // Master Data
         Route::get('/barang/get-data', [BarangController::class, 'getDataBarang']);
         Route::resource('/barang', BarangController::class);
 
@@ -93,6 +96,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/customer/get-data', [CustomerController::class, 'getDataCustomer']);
         Route::resource('/customer', CustomerController::class);
 
+        // Transactions
         Route::get('/api/barang-masuk/', [BarangMasukController::class, 'getAutoCompleteData']);
         Route::get('/barang-masuk/get-data', [BarangMasukController::class, 'getDataBarangMasuk']);
         Route::get('/api/satuan/', [BarangMasukController::class, 'getSatuan']);
@@ -103,16 +107,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/api/satuan/', [BarangKeluarController::class, 'getSatuan']);
         Route::resource('/barang-keluar', BarangKeluarController::class);
 
-        // Sales Order Routes
-        Route::get('/sales-order/export', [SalesOrderController::class, 'export'])->name('sales-order.export');
-        Route::post('/sales-order/import', [SalesOrderController::class, 'import'])->name('sales-order.import');
-        Route::get('/sales-order/download-template', [SalesOrderController::class, 'downloadTemplate'])->name('sales-order.download-template');
-        Route::post('/sales-order/{sales_order}/post', [SalesOrderController::class, 'postToGudang'])->name('sales-order.post');
-        Route::post('/sales-order/{sales_order}/verify', [SalesOrderController::class, 'verify'])->name('sales-order.verify');
-        Route::post('/sales-order/{sales_order}/reject', [SalesOrderController::class, 'reject'])->name('sales-order.reject');
-        Route::delete('/sales-order/detail/{detail}', [SalesOrderController::class, 'deleteDetail'])->name('sales-order.delete-detail');
-        Route::put('/sales-order/detail/{detail}', [SalesOrderController::class, 'updateDetail'])->name('sales-order.update-detail');
-        Route::resource('/sales-order', SalesOrderController::class);
+        // Order
+        Route::get('/order/export', [OrderController::class, 'export'])->name('order.export');
+        Route::post('/order/import', [OrderController::class, 'import'])->name('order.import');
+        Route::get('/order/download-template', [OrderController::class, 'downloadTemplate'])->name('order.download-template');
+        Route::post('/order/{order}/post', [OrderController::class, 'post'])->name('order.post');
+        Route::post('/order/{order}/verify', [OrderController::class, 'verify'])->name('order.verify');
+        Route::post('/order/{order}/shipped', [OrderController::class, 'shipped'])->name('order.shipped');
+        Route::post('/order/{order}/completed', [OrderController::class, 'completed'])->name('order.completed');
+        Route::get('/order/{order}/print', [OrderController::class, 'printPDF'])->name('order.print');
+        Route::post('/order/{order}/reject', [OrderController::class, 'reject'])->name('order.reject');
+        Route::delete('/order/detail/{detail}', [OrderController::class, 'deleteDetail'])->name('order.delete-detail');
+        Route::put('/order/detail/{detail}', [OrderController::class, 'updateDetail'])->name('order.update-detail');
+        Route::resource('/order', OrderController::class);
     });
 });
 

@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class SalesOrderDetail extends Model
+class OrderDetail extends Model
 {
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'sales_order_id',
+        'order_id',
         'barang_id',
         'quantity',
         'unit_price',
@@ -22,13 +22,13 @@ class SalesOrderDetail extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['sales_order_id', 'barang_id', 'quantity', 'unit_price', 'total_price'])
+            ->logOnly(['order_id', 'barang_id', 'quantity', 'unit_price', 'total_price'])
             ->logOnlyDirty();
     }
 
-    public function salesOrder()
+    public function order()
     {
-        return $this->belongsTo(SalesOrder::class);
+        return $this->belongsTo(Order::class);
     }
 
     public function barang()

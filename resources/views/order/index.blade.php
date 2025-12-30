@@ -2,16 +2,18 @@
 
 @section('content')
     <div class="section-header">
-        <h1>Sales Order</h1>
+        <h1>Order</h1>
         <div class="ml-auto">
             @if(auth()->user()->role->role === 'admin_sales' || auth()->user()->role->role === 'super_admin')
-                <a href="{{ route('sales-order.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Tambah Sales
+                <a href="{{ route('order.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Tambah Sales
                     Order</a>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importModal"><i
-                        class="fa fa-file-import"></i> Import Excel</button>
+                <?php    /*
+                               <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importModal"><i
+                                       class="fa fa-file-import"></i> Import Excel</button>
+                               <a href="{{ route('order.download-template') }}" class="btn btn-info"><i class="fa fa-download"></i>
+                                   Download Template</a>
+                           */ ?>
             @endif
-            <a href="{{ route('sales-order.download-template') }}" class="btn btn-info"><i class="fa fa-download"></i>
-                Download Template</a>
         </div>
     </div>
 
@@ -22,7 +24,7 @@
                     <h4>Filter</h4>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('sales-order.export') }}" method="GET" class="row">
+                    <form action="{{ route('order.export') }}" method="GET" class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Start Date</label>
@@ -43,7 +45,6 @@
                                     <option value="draft">Draft (Sales Admin)</option>
                                     <option value="post">Posted (Warehouse Check)</option>
                                     <option value="confirmed">Confirmed (Verified)</option>
-                                    <option value="processing">Processing (Packing)</option>
                                     <option value="shipped">Shipped</option>
                                     <option value="completed">Completed</option>
                                     <option value="cancelled">Cancelled</option>
@@ -79,7 +80,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>No. Sales Order</th>
+                                    <th>No. Order</th>
                                     <th>Customer</th>
                                     <th>Tanggal Order</th>
                                     <th>Total Amount</th>
@@ -88,10 +89,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($salesOrders as $index => $so)
+                                @foreach($orders as $index => $so)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $so->sales_order_no }}</td>
+                                        <td>{{ $so->order_no }}</td>
                                         <td>{{ $so->customer->customer }}</td>
                                         <td>{{ $so->order_date }}</td>
                                         <td>Rp {{ number_format($so->total_amount, 0, ',', '.') }}</td>
@@ -101,7 +102,6 @@
                                                     'draft' => 'badge-secondary',
                                                     'post' => 'badge-info',
                                                     'confirmed' => 'badge-primary',
-                                                    'processing' => 'badge-warning',
                                                     'shipped' => 'badge-info',
                                                     'completed' => 'badge-success',
                                                     'cancelled' => 'badge-danger'
@@ -110,27 +110,49 @@
                                             <span class="badge {{ $badgeClass }}">{{ ucfirst($so->status) }}</span>
                                         </td>
                                         <td>
-                                            <a href="{{ route('sales-order.show', $so->id) }}" class="btn btn-info btn-sm"
+                                            <a href="{{ route('order.show', $so->id) }}" class="btn btn-info btn-sm"
                                                 title="Detail"><i class="fa fa-eye"></i></a>
 
-                                            @if(auth()->user()->role->role === 'admin_sales' && $so->status === 'draft')
-                                                <form action="{{ route('sales-order.post', $so->id) }}" method="POST"
-                                                    class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success btn-sm"
-                                                        title="Post to Warehouse"><i class="fa fa-paper-plane"></i></button>
-                                                </form>
+                                            @if(auth()->user()->role->role === 'admin_sales')
+                                                @if ($so->status === 'draft')
+                                                    <form action="{{ route('order.post', $so->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm"
+                                                            title="Post to Warehouse"><i class="fa fa-paper-plane"></i></button>
+                                                    </form>
+                                                @endif
+                                                @if ($so->status === 'shipped')
+                                                    <form action="{{ route('order.completed', $so->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm"
+                                                            title="Post to Warehouse"><i class="fa fa-check-circle"></i></button>
+                                                    </form>
+                                                @endif
                                             @endif
 
                                             @if(auth()->user()->role->role === 'admin_gudang' && $so->status === 'post')
-                                                <button class="btn btn-primary btn-sm btn-verify" data-id="{{ $so->id }}"
-                                                    data-no="{{ $so->sales_order_no }}" title="Verifikasi & Konfirmasi"><i
-                                                        class="fa fa-check-circle"></i></button>
+                                                <form action="{{ route('order.verify', $so->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary btn-sm"
+                                                        title="Konfirmasi & Verifikasi">
+                                                        <i class="fa fa-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            
+                                            @if(auth()->user()->role->role === 'staff_gudang' && $so->status === 'confirmed')
+                                                <form action="{{ route('order.shipped', $so->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary btn-sm"
+                                                        title="Selesaikan Pesanan (Complete)">
+                                                        <i class="fa fa-truck"></i>
+                                                    </button>
+                                                </form>
                                             @endif
 
                                             @if(auth()->user()->role->role === 'admin_sales' || auth()->user()->role->role === 'super_admin')
                                                 @if($so->status === 'draft')
-                                                    <a href="{{ route('sales-order.edit', $so->id) }}" class="btn btn-warning btn-sm"
+                                                    <a href="{{ route('order.edit', $so->id) }}" class="btn btn-warning btn-sm"
                                                         title="Edit"><i class="fa fa-edit"></i></a>
                                                     <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $so->id }}"
                                                         title="Hapus"><i class="fa fa-trash"></i></button>
@@ -150,11 +172,11 @@
     <!-- Import Modal -->
     <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form action="{{ route('sales-order.import') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('order.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Import Sales Order</h5>
+                        <h5 class="modal-title">Import Order</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -173,37 +195,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Verification Modal -->
-    <div class="modal fade" id="verifyModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <form id="verifyForm" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Verifikasi & Konfirmasi - <span id="verifySoNo"></span></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Konfirmasi ketersediaan stok untuk pesanan ini.</p>
-                        <div class="form-group">
-                            <label>Status Konfirmasi</label>
-                            <select name="status" class="form-control" required>
-                                <option value="confirmed">Konfirmasi (Stok Tersedia)</option>
-                                <option value="cancelled">Batalkan (Stok Tidak Tersedia)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary">Simpan Konfirmasi</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')
@@ -216,14 +207,6 @@
 
             $('#table-so').DataTable();
             $('.select2').select2({ width: '100%' });
-
-            $('.btn-verify').click(function () {
-                let id = $(this).data('id');
-                let no = $(this).data('no');
-                $('#verifySoNo').text(no);
-                $('#verifyForm').attr('action', `/sales-order/${id}/verify`);
-                $('#verifyModal').modal('show');
-            });
 
             $('.btn-delete').click(function () {
                 let id = $(this).data('id');
@@ -238,7 +221,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: `/sales-order/${id}`,
+                            url: `/order/${id}`,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'

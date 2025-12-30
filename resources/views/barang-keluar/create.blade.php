@@ -30,6 +30,12 @@
                 <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-stok"></div>
               </div>
 
+              <div class="form-group">
+                <label>No. Order (Opsional)</label>
+                <input type="text" class="form-control" name="order_no" id="order_no_input">
+                <div class="alert alert-danger mt-2 d-none" role="alert" id="alert-order_no"></div>
+              </div>
+
             </div>
 
             <div class="col-md-6">

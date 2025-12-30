@@ -109,20 +109,20 @@
                 $.each(data, function (key, value) {
                     let stok = value.stok != null ? value.stok : "Stok Kosong";
                     let row = `
-                                    <tr class="barang-row" id="index_${value.id}">
-                                        <td>${counter++}</td>
-                                        <td>${value.kode_barang}</td>
-                                        <td>${value.nama_barang}</td>
-                                        <td>Rp ${new Intl.NumberFormat('id-ID').format(value.price)}</td>
-                                        <td>${stok}</td>
-                                        <td>${value.satuan ? value.satuan.satuan : '-'}</td>
-                                        <td>
-                                            <a href="javascript:void(0)" id="button_detail_barang" data-id="${value.id}" class="btn btn-icon btn-success btn-lg mb-2"><i class="far fa-eye"></i> </a>
-                                            <a href="javascript:void(0)" id="button_edit_barang" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                            <a href="javascript:void(0)" id="button_hapus_barang" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                        </td>
-                                    </tr>
-                                `;
+                                        <tr class="barang-row" id="index_${value.id}">
+                                            <td>${counter++}</td>
+                                            <td>${value.kode_barang}</td>
+                                            <td>${value.nama_barang}</td>
+                                            <td>Rp ${new Intl.NumberFormat('id-ID').format(value.price)}</td>
+                                            <td>${stok}</td>
+                                            <td>${value.satuan ? value.satuan.satuan : '-'}</td>
+                                            <td>
+                                                <a href="javascript:void(0)" id="button_detail_barang" data-id="${value.id}" class="btn btn-icon btn-success btn-lg mb-2"><i class="far fa-eye"></i> </a>
+                                                <a href="javascript:void(0)" id="button_edit_barang" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                <a href="javascript:void(0)" id="button_hapus_barang" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                            </td>
+                                        </tr>
+                                    `;
                     $('#table_id').DataTable().row.add($(row)).draw(false);
                 });
             }
@@ -130,7 +130,6 @@
             function storeData() {
                 let formData = new FormData();
                 formData.append('nama_barang', $('#nama_barang').val());
-                formData.append('stok_minimum', $('#stok_minimum').val());
                 formData.append('price', $('#price').val());
                 formData.append('jenis_id', $('#jenis_id').val());
                 formData.append('satuan_id', $('#satuan_id').val());
@@ -171,7 +170,6 @@
                         $('#detail_jenis_id').val(response.data.jenis_id);
                         $('#detail_satuan_id').val(response.data.satuan_id);
                         $('#detail_stok').val(response.data.stok !== null && response.data.stok !== '' ? response.data.stok : 'Stok Kosong');
-                        $('#detail_stok_minimum').val(response.data.stok_minimum);
                         $('#detail_price').val(response.data.price);
                         $('#detail_deskripsi').val(response.data.deskripsi);
                         $('#modal_detail_barang').modal('show');
@@ -186,7 +184,6 @@
                     success: function (response) {
                         $('#barang_id').val(response.data.id);
                         $('#edit_nama_barang').val(response.data.nama_barang);
-                        $('#edit_stok_minimum').val(response.data.stok_minimum);
                         $('#edit_price').val(response.data.price);
                         $('#edit_jenis_id').val(response.data.jenis_id);
                         $('#edit_satuan_id').val(response.data.satuan_id);
@@ -200,7 +197,6 @@
                 let id = $('#barang_id').val();
                 let formData = new FormData();
                 formData.append('nama_barang', $('#edit_nama_barang').val());
-                formData.append('stok_minimum', $('#edit_stok_minimum').val());
                 formData.append('price', $('#edit_price').val());
                 formData.append('deskripsi', $('#edit_deskripsi').val());
                 formData.append('jenis_id', $('#edit_jenis_id').val());
@@ -261,14 +257,13 @@
 
             function resetCreateForm() {
                 $('#nama_barang').val('');
-                $('#stok_minimum').val('');
                 $('#price').val('');
                 $('#deskripsi').val('');
                 $('#preview').attr('src', '');
             }
 
             function handleValidationErrors(errors, prefix) {
-                const fields = ['nama_barang', 'stok_minimum', 'price', 'jenis_id', 'satuan_id', 'deskripsi'];
+                const fields = ['nama_barang', 'price', 'jenis_id', 'satuan_id', 'deskripsi'];
                 fields.forEach(field => {
                     let errorElem = $(`#alert-${prefix}${field}`);
                     if (errors && errors[field]) {

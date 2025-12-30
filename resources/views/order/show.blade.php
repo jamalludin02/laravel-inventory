@@ -1,11 +1,97 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .status-steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .step-item {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .step-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #adb5bd;
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active .step-dot {
+            background: #6777ef;
+            border-color: #6777ef;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.2);
+        }
+
+        .step-item.completed .step-dot {
+            background: #47c363;
+            border-color: #47c363;
+            color: #fff;
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #adb5bd;
+            text-align: center;
+        }
+
+        .step-item.active .step-label {
+            color: #6777ef;
+        }
+
+        .step-item.completed .step-label {
+            color: #47c363;
+        }
+
+        .status-info-icon {
+            cursor: pointer;
+            color: #6777ef;
+            margin-left: 5px;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+    </style>
+
     <div class="section-header">
         <div class="section-header-back">
-            <a href="{{ route('sales-order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('order.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
         </div>
-        <h1>Detail Sales Order: {{ $salesOrder->sales_order_no }}</h1>
+        <h1>Detail Order: {{ $order->order_no }}</h1>
     </div>
 
     <div class="row">
@@ -17,11 +103,11 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <th width="150">Customer</th>
-                                    <td>: {{ $salesOrder->customer->customer }}</td>
+                                    <td>: {{ $order->customer->customer }}</td>
                                 </tr>
                                 <tr>
                                     <th>Tanggal Order</th>
-                                    <td>: {{ $salesOrder->order_date }}</td>
+                                    <td>: {{ $order->order_date }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -31,25 +117,68 @@
                                     <th width="150">Status</th>
                                     <td>:
                                         @php
-                                            $badgeClass = [
-                                                'draft' => 'badge-secondary',
-                                                'post' => 'badge-info',
-                                                'confirmed' => 'badge-primary',
-                                                'processing' => 'badge-warning',
-                                                'shipped' => 'badge-info',
-                                                'completed' => 'badge-success',
-                                                'cancelled' => 'badge-danger'
-                                            ][$salesOrder->status];
+                                            $statuses = [
+                                                'draft' => ['label' => 'Draft', 'color' => 'badge-secondary', 'desc' => 'Pesanan baru dibuat oleh Admin Sales dan masih bisa diedit.'],
+                                                'post' => ['label' => 'Posted', 'color' => 'badge-info', 'desc' => 'Pesanan telah dikirim ke Gudang untuk verifikasi stok.'],
+                                                'confirmed' => ['label' => 'Confirmed', 'color' => 'badge-primary', 'desc' => 'Stok telah dikonfirmasi tersedia oleh Admin Gudang.'],
+                                                'shipped' => ['label' => 'Shipped', 'color' => 'badge-info', 'desc' => 'Barang telah dikirim ke customer.'],
+                                                'completed' => ['label' => 'Completed', 'color' => 'badge-success', 'desc' => 'Transaksi selesai, barang telah diterima.'],
+                                                'cancelled' => ['label' => 'Cancelled', 'color' => 'badge-danger', 'desc' => 'Pesanan dibatalkan.']
+                                            ];
+                                            $currentStatus = $order->status;
+                                            $badgeClass = $statuses[$currentStatus]['color'] ?? 'badge-secondary';
+                                            $statusLabel = $statuses[$currentStatus]['label'] ?? ucfirst($currentStatus);
                                         @endphp
-                                        <span class="badge {{ $badgeClass }}">{{ ucfirst($salesOrder->status) }}</span>
+                                        <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
+                                        <i class="fas fa-question-circle status-info-icon btn-status-info"
+                                            data-status="{{ $currentStatus }}"></i>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>Total Amount</th>
-                                    <td>: Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</td>
+                                    <td>: Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                                 </tr>
                             </table>
                         </div>
+                    </div>
+
+                    <!-- Progress Point Section -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            @php
+                                $workflow = ['draft', 'post', 'confirmed', 'shipped', 'completed'];
+                                $currentIndex = array_search($currentStatus, $workflow);
+                                if ($currentStatus === 'cancelled')
+                                    $currentIndex = -1;
+                            @endphp
+
+                            <div class="status-steps">
+                                @foreach($workflow as $index => $step)
+                                    @php
+                                        $isCompleted = $currentIndex > $index;
+                                        $isActive = $currentIndex === $index;
+                                        $stepInfo = $statuses[$step];
+                                    @endphp
+                                    <div class="step-item btn-status-info {{ $isCompleted ? 'completed' : ($isActive ? 'active' : '') }}"
+                                        data-status="{{ $step }}">
+                                        <div class="step-dot">
+                                            @if($isCompleted)
+                                                <i class="fas fa-check"></i>
+                                            @else
+                                                {{ $index + 1 }}
+                                            @endif
+                                        </div>
+                                        <div class="step-label">{{ $stepInfo['label'] }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <a href="{{ route('order.print', $order->id) }}" class="btn btn-info" target="_blank">
+                            <i class="fas fa-print"></i> Print PDF
+                        </a>
                     </div>
 
                     <hr>
@@ -64,24 +193,29 @@
                                     <th>Satuan</th>
                                     <th>Unit Price</th>
                                     <th>Total Price</th>
-                                    @if(auth()->user()->role->role === 'admin_gudang' && $salesOrder->status === 'post')
+                                    @php
+                                        $canEditItems = (auth()->user()->role->role === 'admin_gudang' && $order->status === 'post') ||
+                                            (auth()->user()->role->role === 'staff_gudang' && $order->status === 'confirmed');
+                                    @endphp
+                                    @if($canEditItems)
                                         <th>Action</th>
                                     @endif
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($salesOrder->details as $index => $detail)
+                                @foreach($order->details as $index => $detail)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $detail->barang->nama_barang }}</td>
+                                        <td>{{ $detail->barang->nama_barang }}
+                                            <strong>({{ $detail->barang->kode_barang }})</strong>
+                                        </td>
                                         <td>{{ $detail->quantity }}</td>
                                         <td>{{ $detail->barang->satuan->satuan ?? '-' }}</td>
                                         <td>Rp {{ number_format($detail->unit_price, 0, ',', '.') }}</td>
                                         <td>Rp {{ number_format($detail->total_price, 0, ',', '.') }}</td>
-                                        @if(auth()->user()->role->role === 'admin_gudang' && $salesOrder->status === 'post')
+                                        @if($canEditItems)
                                             <td>
-                                                <button class="btn btn-warning btn-sm btn-edit-detail" 
-                                                    data-id="{{ $detail->id }}"
+                                                <button class="btn btn-warning btn-sm btn-edit-detail" data-id="{{ $detail->id }}"
                                                     data-name="{{ $detail->barang->nama_barang }}"
                                                     data-qty="{{ $detail->quantity }}">
                                                     <i class="fa fa-edit"></i> Edit
@@ -98,8 +232,8 @@
                             <tfoot>
                                 <tr>
                                     <th colspan="5" class="text-right">Grand Total</th>
-                                    <th>Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</th>
-                                    @if(auth()->user()->role->role === 'admin_gudang' && $salesOrder->status === 'post')
+                                    <th>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</th>
+                                    @if($canEditItems)
                                         <th></th>
                                     @endif
                                 </tr>
@@ -107,7 +241,7 @@
                         </table>
                     </div>
 
-                    @if($salesOrder->histories->count() > 0)
+                    @if($order->histories->count() > 0)
                         <hr>
                         <h5>History Perubahan</h5>
                         <div class="table-responsive">
@@ -121,7 +255,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($salesOrder->histories as $history)
+                                    @foreach($order->histories as $history)
                                         <tr>
                                             <td>{{ $history->created_at->format('d/m/Y H:i') }}</td>
                                             <td>{{ $history->user->name }}</td>
@@ -135,23 +269,33 @@
                     @endif
                 </div>
                 <div class="card-footer text-right">
-                    @if(auth()->user()->role->role === 'admin_sales' && $salesOrder->status === 'draft')
-                        <form action="{{ route('sales-order.post', $salesOrder->id) }}" method="POST" class="d-inline">
+                    @if(auth()->user()->role->role === 'admin_sales' && $order->status === 'draft')
+                        <form action="{{ route('order.post', $order->id) }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-success">Post ke Gudang</button>
                         </form>
                     @endif
 
-                    @if(auth()->user()->role->role === 'admin_gudang' && $salesOrder->status === 'post')
-                        <button class="btn btn-danger btn-reject" data-id="{{ $salesOrder->id }}">Reject Dokumen</button>
-                        <button class="btn btn-primary btn-verify" data-id="{{ $salesOrder->id }}">Konfirmasi &
-                            Verifikasi</button>
+                    @if(auth()->user()->role->role === 'admin_gudang' && $order->status === 'post')
+                        <button class="btn btn-danger btn-reject" data-id="{{ $order->id }}">Reject Dokumen</button>
+                        <form action="{{ route('order.verify', $order->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Konfirmasi & Verifikasi</button>
+                        </form>
+                    @endif
+                    @if((auth()->user()->role->role === 'staff_gudang' || auth()->user()->role->role === 'super_admin') && $order->status === 'confirmed')
+                        <button class="btn btn-success btn-ship" data-id="{{ $order->id }}">Kirim Barang (Ship)</button>
+                    @endif
+
+                    @if((auth()->user()->role->role === 'admin_sales' || auth()->user()->role->role === 'super_admin') && $order->status === 'shipped')
+                        <button class="btn btn-primary btn-complete" data-id="{{ $order->id }}">Selesaikan Pesanan
+                            (Complete)</button>
                     @endif
 
                     @if(auth()->user()->role->role === 'admin_sales' || auth()->user()->role->role === 'super_admin')
-                        @if($salesOrder->status === 'draft')
-                            <a href="{{ route('sales-order.edit', $salesOrder->id) }}" class="btn btn-warning">Edit</a>
-                            <button class="btn btn-danger btn-delete" data-id="{{ $salesOrder->id }}">Delete</button>
+                        @if($order->status === 'draft')
+                            <a href="{{ route('order.edit', $order->id) }}" class="btn btn-warning">Edit</a>
+                            <button class="btn btn-danger btn-delete" data-id="{{ $order->id }}">Delete</button>
                         @endif
                     @endif
                 </div>
@@ -159,31 +303,69 @@
         </div>
     </div>
 
-    <!-- Verification Modal -->
-    <div class="modal fade" id="verifyModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Status Info Modal -->
+    <div class="modal fade" id="statusInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form id="verifyForm" method="POST">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Informasi Status: <span id="infoStatusLabel"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="infoStatusDesc"></p>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-primary" data-dismiss="modal">Mengerti</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ship Modal -->
+    <div class="modal fade" id="shipModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="shipForm" method="POST">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Verifikasi & Konfirmasi - {{ $salesOrder->sales_order_no }}</h5>
+                        <h5 class="modal-title">Konfirmasi Pengiriman - {{ $order->order_no }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Konfirmasi ketersediaan stok untuk pesanan ini.</p>
-                        <div class="form-group">
-                            <label>Status Konfirmasi</label>
-                            <select name="status" class="form-control" required>
-                                <option value="confirmed">Konfirmasi (Stok Tersedia)</option>
-                                <option value="cancelled">Batalkan (Stok Tidak Tersedia)</option>
-                            </select>
-                        </div>
+                        <p>Apakah Anda yakin pesanan ini sudah siap dan akan dikirim sekarang?</p>
+                        <p class="text-warning"><small>* Stok barang akan otomatis berkurang setelah dikirim.</small></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary">Simpan Konfirmasi</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Ya, Kirim Sekarang</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div class="modal fade" id="completeModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="completeForm" method="POST">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Selesaikan Pesanan - {{ $order->order_no }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin pesanan ini sudah diterima oleh customer dan transaksi selesai?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Ya, Selesai</button>
                     </div>
                 </div>
             </form>
@@ -197,7 +379,7 @@
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Reject Dokumen - {{ $salesOrder->sales_order_no }}</h5>
+                        <h5 class="modal-title">Reject Dokumen - {{ $order->order_no }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -206,7 +388,8 @@
                         <p>Dokumen akan dikembalikan ke status <strong>Draft</strong> (Admin Sales).</p>
                         <div class="form-group">
                             <label>Alasan Reject</label>
-                            <textarea name="reason" class="form-control" rows="3" required placeholder="Masukkan alasan penolakan dokumen..."></textarea>
+                            <textarea name="reason" class="form-control" rows="3" required
+                                placeholder="Masukkan alasan penolakan dokumen..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -235,7 +418,8 @@
                     </div>
                     <div class="form-group">
                         <label>Alasan Perubahan</label>
-                        <textarea id="editReason" class="form-control" rows="3" placeholder="Contoh: Stok tidak mencukupi, hanya tersedia 5 pcs" required></textarea>
+                        <textarea id="editReason" class="form-control" rows="3"
+                            placeholder="Contoh: Stok tidak mencukupi, hanya tersedia 5 pcs" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -276,21 +460,40 @@
     <script>
         $(document).ready(function () {
             // Fix for modal backdrop issue
-            $('.modal').on('show.bs.modal', function() {
+            $('.modal').on('show.bs.modal', function () {
                 $(this).appendTo('body');
+            });
+
+            const statusDescriptions = @json($statuses);
+
+            $('.btn-status-info').click(function () {
+                const status = $(this).data('status');
+                const info = statusDescriptions[status];
+
+                if (info) {
+                    $('#infoStatusLabel').text(info.label);
+                    $('#infoStatusDesc').text(info.desc);
+                    $('#statusInfoModal').modal('show');
+                }
             });
 
             let selectedDetailId = null;
 
-            $('.btn-verify').click(function () {
+            $('.btn-ship').click(function () {
                 let id = $(this).data('id');
-                $('#verifyForm').attr('action', `/sales-order/${id}/verify`);
-                $('#verifyModal').modal('show');
+                $('#shipForm').attr('action', "{{ url('order') }}/" + id + "/shipped");
+                $('#shipModal').modal('show');
+            });
+
+            $('.btn-complete').click(function () {
+                let id = $(this).data('id');
+                $('#completeForm').attr('action', "{{ url('order') }}/" + id + "/completed");
+                $('#completeModal').modal('show');
             });
 
             $('.btn-reject').click(function () {
                 let id = $(this).data('id');
-                $('#rejectForm').attr('action', `/sales-order/${id}/reject`);
+                $('#rejectForm').attr('action', "{{ url('order') }}/" + id + "/reject");
                 $('#rejectModal').modal('show');
             });
 
@@ -311,7 +514,7 @@
                 }
 
                 $.ajax({
-                    url: `/sales-order/detail/${selectedDetailId}`,
+                    url: "{{ url('order/detail') }}/" + selectedDetailId,
                     type: 'PUT',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -345,7 +548,7 @@
                 }
 
                 $.ajax({
-                    url: `/sales-order/detail/${selectedDetailId}`,
+                    url: "{{ url('order/detail') }}/" + selectedDetailId,
                     type: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -376,14 +579,14 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: `/sales-order/${id}`,
+                            url: "{{ url('order') }}/" + id,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'
                             },
                             success: function (response) {
                                 Swal.fire('Deleted!', response.message, 'success').then(() => {
-                                    window.location.href = "{{ route('sales-order.index') }}";
+                                    window.location.href = "{{ route('order.index') }}";
                                 });
                             }
                         });

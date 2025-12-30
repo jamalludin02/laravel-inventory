@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
-        h1, p{
+
+        h1,
+        p {
             text-align: center;
             margin-bottom: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             text-align: center;
             padding: 8px;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
             font-weight: bold;
         }
+
         .footer {
             position: fixed;
             bottom: 20px;
@@ -30,6 +38,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Laporan Stok</h1>
     <p>Keterangan : {{ $selectedOption }}</p>
@@ -41,16 +50,18 @@
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Stok</th>
+                <th>Safety Stock</th>
             </tr>
         </thead>
         <tbody>
             @foreach($barangs as $index => $barang)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $barang->kode_barang }}</td>
-                <td>{{ $barang->nama_barang }}</td>
-                <td>{{ $barang->stok}}  {{ $barang->satuan->satuan }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $barang->kode_barang }}</td>
+                    <td>{{ $barang->nama_barang }}</td>
+                    <td>{{ $barang->stok}} {{ $barang->satuan->satuan ?? '' }}</td>
+                    <td>{{ $barang->safety_stock }} {{ $barang->satuan->satuan ?? '' }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -60,4 +71,5 @@
         Tanggal: {{ date('d-m-Y') }}
     </div>
 </body>
+
 </html>
