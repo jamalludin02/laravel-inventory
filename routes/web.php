@@ -21,6 +21,7 @@ use App\Http\Controllers\UbahPasswordController;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PurchaseOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/hak-akses/get-data', [HakAksesController::class, 'getDataRole']);
         Route::resource('/hak-akses', HakAksesController::class);
+
+        Route::post('/menu-management/reorder', [\App\Http\Controllers\MenuManagementController::class, 'reorder'])->name('menu-management.reorder');
+        Route::resource('/menu-management', \App\Http\Controllers\MenuManagementController::class);
     });
 
     Route::get('/switch-back', [ManajemenUserController::class, 'switchBack'])->name('data-pengguna.switch-back');
@@ -120,6 +124,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/order/detail/{detail}', [OrderController::class, 'deleteDetail'])->name('order.delete-detail');
         Route::put('/order/detail/{detail}', [OrderController::class, 'updateDetail'])->name('order.update-detail');
         Route::resource('/order', OrderController::class);
+
+        // Purchase Order
+        Route::get('/purchase-order/{purchaseOrder}/process-receipt', [PurchaseOrderController::class, 'processReceipt'])->name('purchase-order.process-receipt');
+        Route::post('/purchase-order/{purchaseOrder}/store-receipt', [PurchaseOrderController::class, 'storeReceipt'])->name('purchase-order.store-receipt');
+        Route::post('/purchase-order/{purchaseOrder}/post', [PurchaseOrderController::class, 'post'])->name('purchase-order.post');
+        Route::resource('/purchase-order', PurchaseOrderController::class);
     });
 });
 

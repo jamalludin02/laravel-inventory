@@ -39,7 +39,7 @@
 
     <!-- Datatables Jquery -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#table_id').DataTable({
                 paging: true
             });
@@ -47,21 +47,21 @@
                 url: "/hak-akses/get-data",
                 type: "GET",
                 dataType: 'JSON',
-                success: function(response) {
+                success: function (response) {
                     let counter = 1;
                     $('#table_id').DataTable().clear();
-                    $.each(response.data, function(key, value) {
+                    $.each(response.data, function (key, value) {
                         let role = `
-                    <tr class="role-row" id="index_${value.id}">
-                        <td>${counter++}</td>
-                        <td>${value.role}</td>
-                        <td>${value.deskripsi}</td>
-                        <td>
-                            <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                            <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                        </td>
-                    </tr>
-                    `;
+                            <tr class="role-row" id="index_${value.id}">
+                                <td>${counter++}</td>
+                                <td>${value.role}</td>
+                                <td>${value.deskripsi}</td>
+                                <td>
+                                    <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                    <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                </td>
+                            </tr>
+                            `;
                         $('#table_id').DataTable().row.add($(role)).draw(false);
                     });
                 }
@@ -71,11 +71,11 @@
 
     <!-- Show Modal Tambah barang -->
     <script>
-        $('body').on('click', '#button_tambah_role', function() {
+        $('body').on('click', '#button_tambah_role', function () {
             $('#modal_tambah_role').modal('show');
         });
 
-        $('#store').click(function(e) {
+        $('#store').click(function (e) {
             e.preventDefault();
 
             let role = $('#role').val();
@@ -95,7 +95,7 @@
                 contentType: false,
                 processData: false,
 
-                success: function(response) {
+                success: function (response) {
                     Swal.fire({
                         type: 'success',
                         icon: 'success',
@@ -109,23 +109,23 @@
                         type: "GET",
                         dataType: 'JSON',
                         cache: false,
-                        success: function(response) {
+                        success: function (response) {
                             $('#table-role').html(''); // kosongkan tabel terlebih dahulu
 
                             let counter = 1;
                             $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
+                            $.each(response.data, function (key, value) {
                                 let role = `
-                        <tr class="role-row" id="index_${value.id}">
-                            <td>${counter++}</td>
-                            <td>${value.role}</td>
-                            <td>${value.deskripsi}</td>
-                            <td>
-                                <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                            </td>
-                        </tr>
-                        `;
+                                <tr class="role-row" id="index_${value.id}">
+                                    <td>${counter++}</td>
+                                    <td>${value.role}</td>
+                                    <td>${value.deskripsi}</td>
+                                    <td>
+                                        <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                        <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                    </td>
+                                </tr>
+                                `;
                                 $('#table_id').DataTable().row.add($(role)).draw(
                                     false);
                             });
@@ -138,13 +138,13 @@
                             let table = $('#table_id').DataTable();
                             table.draw(); // memperbarui Datatables
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.log(error);
                         }
                     });
                 },
 
-                error: function(error) {
+                error: function (error) {
                     if (error.responseJSON && error.responseJSON.role && error.responseJSON.role[0]) {
                         $('#alert-role').removeClass('d-none');
                         $('#alert-role').addClass('d-block');
@@ -168,17 +168,48 @@
     <!-- Edit Data role -->
     <script>
         // Menampilkan Form Modal Edit
-        $('body').on('click', '#button_edit_role', function() {
+        $('body').on('click', '#button_edit_role', function () {
             let role_id = $(this).data('id');
 
             $.ajax({
                 url: `/hak-akses/${role_id}/edit`,
                 type: "GET",
                 cache: false,
-                success: function(response) {
+                success: function (response) {
                     $('#role_id').val(response.data.id);
                     $('#edit_role').val(response.data.role);
                     $('#edit_deskripsi').val(response.data.deskripsi);
+
+                    // Load menus
+                    let assignedMenuIds = response.data.menus.map(m => m.id);
+
+                    // Function to render menu tree
+                    function renderMenuTree(tree, level = 0) {
+                        let html = '';
+                        tree.forEach(menu => {
+                            let isChecked = assignedMenuIds.includes(menu.id) ? 'checked' : '';
+                            let padding = level * 25;
+                            let fontWeight = menu.type === 'header' ? 'font-weight-bold text-primary text-uppercase small' : (level === 0 ? 'font-weight-bold' : '');
+                            let marginClass = menu.type === 'header' ? 'mt-3 mb-1' : 'mb-1';
+
+                            html += `
+                                    <div class="${marginClass}" style="padding-left: ${padding}px">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input menu-checkbox" id="menu_${menu.id}" value="${menu.id}" ${isChecked}>
+                                            <label class="custom-control-label ${fontWeight}" for="menu_${menu.id}">${menu.name}</label>
+                                        </div>
+                                    </div>
+                                `;
+
+                            if (menu.children && menu.children.length > 0) {
+                                html += renderMenuTree(menu.children, level + 1);
+                            }
+                        });
+                        return html;
+                    }
+
+                    let menuHtml = renderMenuTree(response.menus);
+                    $('#menu_list').html(menuHtml);
 
                     $('#modal_edit_role').modal('show');
                 }
@@ -186,7 +217,7 @@
         });
 
         // Proses Update Data
-        $('#update').click(function(e) {
+        $('#update').click(function (e) {
             e.preventDefault();
 
             let role_id = $('#role_id').val();
@@ -199,6 +230,12 @@
             let formData = new FormData();
             formData.append('role', role);
             formData.append('deskripsi', deskripsi);
+
+            // Append selected menus
+            $('.menu-checkbox:checked').each(function () {
+                formData.append('menus[]', $(this).val());
+            });
+
             formData.append('_token', token);
             formData.append('_method', 'PUT');
 
@@ -210,7 +247,7 @@
                 contentType: false,
                 processData: false,
 
-                success: function(response) {
+                success: function (response) {
                     Swal.fire({
                         type: 'success',
                         icon: 'success',
@@ -224,23 +261,23 @@
                         type: "GET",
                         dataType: 'JSON',
                         cache: false,
-                        success: function(response) {
+                        success: function (response) {
                             $('#table-role').html(''); // kosongkan tabel terlebih dahulu
 
                             let counter = 1;
                             $('#table_id').DataTable().clear();
-                            $.each(response.data, function(key, value) {
+                            $.each(response.data, function (key, value) {
                                 let role = `
-                            <tr class="role-row" id="index_${value.id}">
-                                <td>${counter++}</td>
-                                <td>${value.role}</td>
-                                <td>${value.deskripsi}</td>
-                                <td>
-                                    <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                    <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                </td>
-                            </tr>
-                            `;
+                                    <tr class="role-row" id="index_${value.id}">
+                                        <td>${counter++}</td>
+                                        <td>${value.role}</td>
+                                        <td>${value.deskripsi}</td>
+                                        <td>
+                                            <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                            <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                        </td>
+                                    </tr>
+                                    `;
                                 $('#table_id').DataTable().row.add($(role)).draw(
                                     false);
                             });
@@ -255,13 +292,13 @@
                             let table = $('#table_id').DataTable();
                             table.draw(); // memperbarui Datatables
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.log(error);
                         }
                     });
                 },
 
-                error: function(error) {
+                error: function (error) {
                     if (error.responseJSON && error.responseJSON.role && error.responseJSON.role[0]) {
                         $('#alert-role').removeClass('d-none');
                         $('#alert-role').addClass('d-block');
@@ -283,7 +320,7 @@
 
     <!-- Hapus Data Barang -->
     <script>
-        $('body').on('click', '#button_hapus_role', function() {
+        $('body').on('click', '#button_hapus_role', function () {
             let role_id = $(this).data('id');
             let token = $("meta[name='csrf-token']").attr("content");
 
@@ -303,7 +340,7 @@
                         data: {
                             "_token": token
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.fire({
                                 type: 'success',
                                 icon: 'success',
@@ -317,21 +354,21 @@
                                 url: "/hak-akses/get-data",
                                 type: "GET",
                                 dataType: 'JSON',
-                                success: function(response) {
+                                success: function (response) {
                                     let counter = 1;
                                     $('#table_id').DataTable().clear();
-                                    $.each(response.data, function(key, value) {
+                                    $.each(response.data, function (key, value) {
                                         let role = `
-                                        <tr class="role-row" id="index_${value.id}">
-                                            <td>${counter++}</td>
-                                            <td>${value.role}</td>
-                                            <td>${value.deskripsi}</td>
-                                            <td>
-                                                <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                                <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                            </td>
-                                        </tr>
-                                        `;
+                                                <tr class="role-row" id="index_${value.id}">
+                                                    <td>${counter++}</td>
+                                                    <td>${value.role}</td>
+                                                    <td>${value.deskripsi}</td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" id="button_edit_role" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                        <a href="javascript:void(0)" id="button_hapus_role" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                    </td>
+                                                </tr>
+                                                `;
                                         $('#table_id').DataTable().row.add(
                                             $(role)).draw(false);
                                     });

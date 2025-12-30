@@ -112,156 +112,78 @@
           </div>
 
           <ul class="sidebar-menu">
-            @if (auth()->user()->role->role === 'kepala_gudang')
-              <li class="sidebar-item">
-                <a class="nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}" href="/">
-                  <i class="fas fa-fire"></i> <span class="align-middle">Dashboard</span>
-                </a>
-              </li>
+            @php
+              $menus = auth()->user()->role->menus()->whereNull('parent_id')->with([
+                'children' => function ($q) {
+                  $q->whereHas('roles', function ($rq) {
+                    $rq->where('role_id', auth()->user()->role_id);
+                  })->orderBy('order');
+                }
+              ])->orderBy('order')->get();
+            @endphp
 
-              <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
-                    class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
-              </li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
-                    Keluar</span></a></li>
-
-              <li class="menu-header">MANAJEMEN USER</li>
-              <li><a class="nav-link {{ Request::is('aktivitas-user') ? 'active' : '' }}" href="/aktivitas-user"><i
-                    class="fa fa-solid fa-list"></i><span>Aktivitas User</span></a></li>
-            @endif
-
-            @if (auth()->user()->role->role === 'super_admin')
-              <li class="sidebar-item">
-                <a class="nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}" href="/">
-                  <i class="fas fa-fire"></i> <span class="align-middle">Dashboard</span>
-                </a>
-              </li>
-
-              <li class="menu-header">DATA MASTER</li>
-              <li class="dropdown">
-                <a href="#"
-                  class="nav-link has-dropdown {{ Request::is('barang') || Request::is('jenis-barang') || Request::is('satuan-barang') ? 'active' : '' }}"
-                  data-toggle="dropdown"><i class="fas fa-thin fa-cubes"></i><span>Data Barang</span></a>
-                <ul class="dropdown-menu">
-                  <li><a class="nav-link {{ Request::is('barang') ? 'active' : '' }}" href="/barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Nama Barang</a></li>
-                  <li><a class="nav-link {{ Request::is('jenis-barang') ? 'active' : '' }}" href="/jenis-barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Jenis</a></li>
-                  <li><a class="nav-link {{ Request::is('satuan-barang') ? 'active' : '' }}" href="/satuan-barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Satuan</a></li>
-                </ul>
-              </li>
-              <li class="dropdown">
-                <a href="#"
-                  class="nav-link has-dropdown {{ Request::is('supplier') || Request::is('customer') ? 'active' : '' }}"
-                  data-toggle="dropdown"><i class="fa fa-sharp fa-solid fa-building"></i><span>Perusahaan</span></a>
-                <ul class="dropdown-menu">
-                  <li><a class="nav-link {{ Request::is('supplier') ? 'active' : '' }}" href="/supplier"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Supplier</a></li>
-                  <li><a class="nav-link {{ Request::is('customer') ? 'active' : '' }}" href="/customer"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Customer</a></li>
-                </ul>
-              </li>
-
-              <li class="menu-header">TRANSAKSI BARANG MASUK</li>
-              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
-                    class="fa fa-file-invoice-dollar"></i> <span>Purchase Order</span></a></li>
-              <li class="menu-header">TRANSAKSI BARANG KELUAR</li>
-              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
-                    class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
-              <?php  /*
-                 <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="/barang-masuk"><i
-                       class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
-                 <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="/barang-keluar"><i
-                       class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
-                 */ ?>
-
-              <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
-                    class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
-              </li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
-                    Keluar</span></a></li>
-
-              <li class="menu-header">MANAJEMEN USER</li>
-              <li><a class="nav-link {{ Request::is('data-pengguna') ? 'active' : '' }}" href="/data-pengguna"><i
-                    class="fa fa-solid fa-users"></i><span>Data Pengguna</span></a></li>
-              <li><a class="nav-link {{ Request::is('hak-akses') ? 'active' : '' }}" href="/hak-akses"><i
-                    class="fa fa-solid fa-user-lock"></i><span>Hak Akses/Role</span></a></li>
-              <li><a class="nav-link {{ Request::is('aktivitas-user') ? 'active' : '' }}" href="/aktivitas-user"><i
-                    class="fa fa-solid fa-list"></i><span>Aktivitas User</span></a></li>
-
-            @endif
-
-            @if (auth()->user()->role->role === 'admin_gudang' || auth()->user()->role->role === 'staff_gudang' || auth()->user()->role->role === 'admin_sales')
-              <li class="sidebar-item">
-                <a class="sidebar-link nav-link {{ Request::is('/') || Request::is('dashboard') ? 'active' : '' }}"
-                  href="/">
-                  <i class="fas fa-fire"></i> <span class="align-middle">Dashboard</span>
-                </a>
-              </li>
-
-              <li class="menu-header">DATA MASTER</li>
-              <li class="dropdown">
-                <a href="#"
-                  class="nav-link has-dropdown {{ Request::is('barang') || Request::is('jenis-barang') || Request::is('satuan-barang') ? 'active' : '' }}"
-                  data-toggle="dropdown"><i class="fas fa-thin fa-cubes"></i><span>Data Barang</span></a>
-                <ul class="dropdown-menu">
-                  <li><a class="nav-link {{ Request::is('barang') ? 'active' : '' }}" href="/barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Nama Barang</a></li>
-                  <li><a class="nav-link {{ Request::is('jenis-barang') ? 'active' : '' }}" href="/jenis-barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Jenis</a></li>
-                  <li><a class="nav-link {{ Request::is('satuan-barang') ? 'active' : '' }}" href="/satuan-barang"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Satuan</a></li>
-                </ul>
-              </li>
-              <li class="dropdown">
-                <a href="#"
-                  class="nav-link has-dropdown {{ Request::is('supplier') || Request::is('customer') ? 'active' : '' }}"
-                  data-toggle="dropdown"><i class="fa fa-sharp fa-solid fa-building"></i><span>Perusahaan</span></a>
-                <ul class="dropdown-menu">
-                  <li><a class="nav-link {{ Request::is('supplier') ? 'active' : '' }}" href="/supplier"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Supplier</a></li>
-                  <li><a class="nav-link {{ Request::is('customer') ? 'active' : '' }}" href="/customer"><i
-                        class="fa fa-solid fa-circle fa-xs"></i> Customer</a></li>
-                </ul>
-              </li>
-
-              <li class="menu-header">TRANSAKSI BARANG MASUK</li>
-              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
-                    class="fa fa-file-invoice-dollar"></i> <span>Purchase Order</span></a></li>
-              <li class="menu-header">TRANSAKSI BARANG KELUAR</li>
-              <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
-                    class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
-
-              <?php  /*
-                 <li class="menu-header">TRANSAKSI</li>
-                 <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="/barang-masuk"><i
-                       class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
-                 <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="/barang-keluar"><i
-                       class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
-                 <li><a class="nav-link {{ Request::is('order') ? 'active' : '' }}" href="/order"><i
-                       class="fa fa-file-invoice-dollar"></i> <span>Sales Order</span></a></li>
-                 */ ?>
-
-              <li class="menu-header">LAPORAN</li>
-              <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="/laporan-stok"><i
-                    class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}"
-                  href="/laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a>
-              </li>
-              <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}"
-                  href="/laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang
-                    Keluar</span></a></li>
-
-            @endif
+            @foreach($menus as $menu)
+              @if($menu->type === 'header')
+                <li class="menu-header">{{ $menu->name }}</li>
+                @foreach($menu->children as $child)
+                  @if($child->children->count() > 0)
+                    <li
+                      class="dropdown {{ collect($child->children->pluck('url'))->contains(fn($url) => Request::is(ltrim($url, '/')) || Request::is(ltrim($url, '/') . '/*')) ? 'active' : '' }}">
+                      <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                        @if($child->icon) <i class="{{ $child->icon }}"></i> @endif
+                        <span>{{ $child->name }}</span>
+                      </a>
+                      <ul class="dropdown-menu">
+                        @foreach($child->children as $subChild)
+                          <li>
+                            <a class="nav-link {{ Request::is(ltrim($subChild->url, '/')) || Request::is(ltrim($subChild->url, '/') . '/*') ? 'active' : '' }}"
+                              href="{{ $subChild->url }}">
+                              <i class="fa fa-solid fa-circle fa-xs"></i> {{ $subChild->name }}
+                            </a>
+                          </li>
+                        @endforeach
+                      </ul>
+                    </li>
+                  @else
+                    <li
+                      class="{{ Request::is(ltrim($child->url, '/')) || ($child->url !== '/' && Request::is(ltrim($child->url, '/') . '/*')) ? 'active' : '' }}">
+                      <a class="nav-link" href="{{ $child->url }}">
+                        @if($child->icon) <i class="{{ $child->icon }}"></i> @endif
+                        <span>{{ $child->name }}</span>
+                      </a>
+                    </li>
+                  @endif
+                @endforeach
+              @else
+                @if($menu->children->count() > 0)
+                  <li
+                    class="dropdown {{ collect($menu->children->pluck('url'))->contains(fn($url) => Request::is(ltrim($url, '/')) || Request::is(ltrim($url, '/') . '/*')) ? 'active' : '' }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                      @if($menu->icon) <i class="{{ $menu->icon }}"></i> @endif
+                      <span>{{ $menu->name }}</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      @foreach($menu->children as $child)
+                        <li>
+                          <a class="nav-link {{ Request::is(ltrim($child->url, '/')) || Request::is(ltrim($child->url, '/') . '/*') ? 'active' : '' }}"
+                            href="{{ $child->url }}">
+                            <i class="fa fa-solid fa-circle fa-xs"></i> {{ $child->name }}
+                          </a>
+                        </li>
+                      @endforeach
+                    </ul>
+                  </li>
+                @else
+                  <li
+                    class="{{ Request::is(ltrim($menu->url, '/')) || ($menu->url !== '/' && Request::is(ltrim($menu->url, '/') . '/*')) ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ $menu->url }}">
+                      @if($menu->icon) <i class="{{ $menu->icon }}"></i> @endif
+                      <span>{{ $menu->name }}</span>
+                    </a>
+                  </li>
+                @endif
+              @endif
+            @endforeach
           </ul>
 
         </aside>

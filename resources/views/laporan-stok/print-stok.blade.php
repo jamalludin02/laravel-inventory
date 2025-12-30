@@ -30,6 +30,16 @@
             font-weight: bold;
         }
 
+        .text-danger {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .text-warning {
+            color: #e67e22;
+            font-weight: bold;
+        }
+
         .footer {
             position: fixed;
             bottom: 20px;
@@ -50,7 +60,9 @@
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
                 <th>Stok</th>
+                <th>Lead Time</th>
                 <th>Safety Stock</th>
+                <th>Reorder Point</th>
             </tr>
         </thead>
         <tbody>
@@ -58,9 +70,14 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $barang->kode_barang }}</td>
-                    <td>{{ $barang->nama_barang }}</td>
-                    <td>{{ $barang->stok}} {{ $barang->satuan->satuan ?? '' }}</td>
+                    <td style="text-align: left;">{{ $barang->nama_barang }}</td>
+                    <td
+                        class="{{ $barang->stok < $barang->safety_stock ? 'text-danger' : ($barang->stok < $barang->reorder_point ? 'text-warning' : '') }}">
+                        {{ $barang->stok}} {{ $barang->satuan->satuan ?? '' }}
+                    </td>
+                    <td>{{ $barang->lead_time_days }} days</td>
                     <td>{{ $barang->safety_stock }} {{ $barang->satuan->satuan ?? '' }}</td>
+                    <td>{{ $barang->reorder_point }} {{ $barang->satuan->satuan ?? '' }}</td>
                 </tr>
             @endforeach
         </tbody>

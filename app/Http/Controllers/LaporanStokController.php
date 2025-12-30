@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderHistory;
 use App\Models\OrderProduk;
+use App\Models\ReorderPoint;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -32,17 +33,16 @@ class LaporanStokController extends Controller
         $selectedOption = $request->input('opsi');
 
         $query = Barang::with('satuan')
-            ->leftJoin('safety_stock', 'barangs.id', '=', 'safety_stock.barang_id')
-            ->select('barangs.*', 'safety_stock.safety_stock');
+            ->leftJoin('reorder_point', 'barangs.id', '=', 'reorder_point.barang_id')
+            ->select('barangs.*','reorder_point.lead_time_days' , 'reorder_point.safety_stock', 'reorder_point.reorder_point');
 
         if ($selectedOption == 'minimum') {
-            $query->whereRaw('barangs.stok <= safety_stock.safety_stock');
+            $query->whereRaw('barangs.stok <= reorder_point.safety_stock');
         } elseif ($selectedOption == 'stok-habis') {
             $query->where('stok', 0);
         }
 
         $barangs = $query->get();
-
         return response()->json($barangs);
     }
 
@@ -54,11 +54,11 @@ class LaporanStokController extends Controller
         $selectedOption = $request->input('opsi');
 
         $query = Barang::with('satuan')
-            ->leftJoin('safety_stock', 'barangs.id', '=', 'safety_stock.barang_id')
-            ->select('barangs.*', 'safety_stock.safety_stock');
+            ->leftJoin('reorder_point', 'barangs.id', '=', 'reorder_point.barang_id')
+            ->select('barangs.*', 'reorder_point.safety_stock', 'reorder_point.reorder_point');
 
         if ($selectedOption == 'minimum') {
-            $query->whereRaw('barangs.stok <= safety_stock.safety_stock');
+            $query->whereRaw('barangs.stok <= reorder_point.safety_stock');
         } elseif ($selectedOption == 'stok-habis') {
             $query->where('stok', 0);
         }

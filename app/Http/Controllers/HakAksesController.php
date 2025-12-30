@@ -21,8 +21,8 @@ class HakAksesController extends Controller
     {
         $roles = Role::all();
         return response()->json([
-            'success'   => true,
-            'data'      => $roles
+            'success' => true,
+            'data' => $roles
         ]);
     }
 
@@ -40,26 +40,26 @@ class HakAksesController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'role'      => 'required',
+            'role' => 'required',
             'deskripsi' => 'required'
         ], [
-            'role.required'      => 'Form Role Wajib Di Isi !',
+            'role.required' => 'Form Role Wajib Di Isi !',
             'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $role = Role::create([
-            'role'      => $request->role,
+            'role' => $request->role,
             'deskripsi' => $request->deskripsi
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Data Berhasil Tersimpan',
-            'data'     => $role
+            'data' => $role
         ]);
     }
 
@@ -76,11 +76,22 @@ class HakAksesController extends Controller
      */
     public function edit($id)
     {
-        $role = Role::findOrFail($id);
+        $role = Role::with('menus')->findOrFail($id);
+        // Ambil menu top-level beserta children-nya, urutkan berdasarkan 'order'
+        $menus = \App\Models\Menu::whereNull('parent_id')
+            ->with([
+                'children' => function ($q) {
+                    $q->orderBy('order');
+                }
+            ])
+            ->orderBy('order')
+            ->get();
+
         return response()->json([
             'success' => true,
-            'message' => 'Edit Data Barang',
-            'data'    => $role
+            'message' => 'Edit Data Role',
+            'data' => $role,
+            'menus' => $menus
         ]);
     }
 
@@ -92,26 +103,33 @@ class HakAksesController extends Controller
         $role = Role::find($id);
 
         $validator = Validator::make($request->all(), [
-            'role'      => 'required',
+            'role' => 'required',
             'deskripsi' => 'required'
         ], [
-            'role.required'         => 'Form ole Wajib Di Isi !',
-            'deskripsi.required'    => 'Form Deskripsi Wajib Di Isi !'
+            'role.required' => 'Form Role Wajib Di Isi !',
+            'deskripsi.required' => 'Form Deskripsi Wajib Di Isi !'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $role->update([
-            'role'      => $request->role,
+            'role' => $request->role,
             'deskripsi' => $request->deskripsi
         ]);
 
+        // Sync menus
+        if ($request->has('menus')) {
+            $role->menus()->sync($request->menus);
+        } else {
+            $role->menus()->detach();
+        }
+
         return response()->json([
-            'success'   => true,
-            'message'   => 'Data Berhasil Terupdate',
-            'data'      => $role
+            'success' => true,
+            'message' => 'Data Berhasil Terupdate',
+            'data' => $role
         ]);
     }
 

@@ -42,10 +42,11 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Transaksi</th>
+                                    <th>Kode Sales Order</th>
+                                    <th>Customer</th>
                                     <th>Tanggal Keluar</th>
                                     <th>Nama Barang</th>
                                     <th>Jumlah Keluar</th>
-                                    <th>Customer</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-laporan-barang-keluar">
@@ -91,21 +92,20 @@
 
                         if (response.length > 0) {
                             $.each(response, function (index, item) {
-                                getCustomerName(item.customer_id, function (customer) {
-                                    var row = [
-                                        (index + 1),
-                                        item.kode_transaksi,
-                                        item.sales_order_no || '-',
-                                        item.tanggal_keluar,
-                                        item.nama_barang,
-                                        item.jumlah_keluar,
-                                        customer
-                                    ];
-                                    table.row.add(row).draw(false);
-                                });
+                                var customerName = item.customer ? item.customer.customer : '-';
+                                var row = [
+                                    (index + 1),
+                                    item.kode_transaksi,
+                                    item.order_no || '-',
+                                    customerName,
+                                    item.tanggal_keluar,
+                                    item.nama_barang,
+                                    item.jumlah_keluar
+                                ];
+                                table.row.add(row).draw(false);
                             });
                         } else {
-                            var emptyRow = ['', 'Tidak ada data yang tersedia.', '', '', '', ''];
+                            var emptyRow = ['', 'Tidak ada data yang tersedia.', '', '', '', '', ''];
                             table.row.add(emptyRow).draw(false); // Tambahkan baris kosong ke DataTable
                         }
                     },
@@ -113,14 +113,6 @@
                         console.log(error);
                     }
                 });
-                function getCustomerName(customerId, callback) {
-                    $.getJSON('{{ url('api/customer') }}', function (customers) {
-                        var customer = customers.find(function (s) {
-                            return s.id === customerId;
-                        });
-                        callback(customer ? customer.customer : '');
-                    });
-                }
             }
 
             //Fungsi Refresh Tabel

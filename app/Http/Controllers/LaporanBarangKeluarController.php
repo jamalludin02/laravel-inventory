@@ -25,19 +25,17 @@ class LaporanBarangKeluarController extends Controller
     {
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
-    
-        $barangKeluar = BarangKeluar::query();
-    
-        if ($tanggalMulai && $tanggalSelesai) {
-            $barangKeluar->whereBetween('tanggal_keluar', [$tanggalMulai, $tanggalSelesai]);
-        }
-    
-        $data = $barangKeluar->get();
 
-        if (empty($tanggalMulai) && empty($tanggalSelesai)) {
-            $data = BarangKeluar::orderBy('tanggal_keluar', 'desc')->get();
+        $query = BarangKeluar::with('customer');
+
+        if ($tanggalMulai && $tanggalSelesai) {
+            $query->whereBetween('tanggal_keluar', [$tanggalMulai, $tanggalSelesai]);
+        } else {
+            $query->orderBy('tanggal_keluar', 'desc');
         }
-    
+
+        $data = $query->get();
+
         return response()->json($data);
     }
 
@@ -48,19 +46,15 @@ class LaporanBarangKeluarController extends Controller
     {
         $tanggalMulai = $request->input('tanggal_mulai');
         $tanggalSelesai = $request->input('tanggal_selesai');
-    
-        $barangKeluar = BarangKeluar::query();
-    
+
+        $query = BarangKeluar::with('customer');
+
         if ($tanggalMulai && $tanggalSelesai) {
-            $barangKeluar->whereBetween('tanggal_keluar', [$tanggalMulai, $tanggalSelesai]);
+            $query->whereBetween('tanggal_keluar', [$tanggalMulai, $tanggalSelesai]);
         }
-    
-        if ($tanggalMulai !== null && $tanggalSelesai !== null) {
-            $data = $barangKeluar->get();
-        } else {
-            $data = BarangKeluar::all();
-        }
-        
+
+        $data = $query->get();
+
         //Generate PDF
         $dompdf = new Dompdf();
         $html = view('/laporan-barang-keluar/print-barang-keluar', compact('data', 'tanggalMulai', 'tanggalSelesai'))->render();

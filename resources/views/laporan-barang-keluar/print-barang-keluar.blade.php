@@ -66,8 +66,8 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->kode_transaksi }}</td>
-                <td>{{ $item->sales_order_no ?? '-' }}</td>
-                <td>{{ $item->tanggal_keluar }}</td>
+                    <td>{{ $item->order_no ?? '-' }}</td>
+                    <td>{{ $item->tanggal_keluar }}</td>
                     <td>{{ $item->nama_barang}} </td>
                     <td>{{ $item->jumlah_keluar}} </td>
                     <td>{{ $item->customer->customer}} </td>

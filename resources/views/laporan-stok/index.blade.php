@@ -18,7 +18,7 @@
                         <label for="opsi-laporan-stok">Filter Stok Berdasarkan :</label>
                         <select class="form-control" name="opsi-laporan-stok" id="opsi-laporan-stok">
                             <option value="semua" selected>Semua</option>
-                            <option value="minimum">Batas Minimum</option>
+                            <option value="minimum">Batas Reorder Point</option>
                             <option value="stok-habis">Stok Habis</option>
                         </select>
                     </div>
@@ -31,11 +31,17 @@
                         <table id="table_id" class="display">
                             <thead>
                                 <tr>
-                                    <th>No</th>
+                                    <th class="text-center">No</th>
                                     <th>Kode Barang</th>
                                     <th>Nama Barang</th>
-                                    <th>Stok</th>
-                                    <th>Safety Stock</th>
+                                    <th class="text-center">Stok</th>
+                                    <th class="text-center">Lead Time</th>
+                                    <th class="text-center">
+                                        Safety Stock <br> <small>SS = ( Max order - Avg Demand) * Lead Time</small>
+                                    </th>
+                                    <th class="text-center">
+                                        Reorder Point <br> <small>ROP = ( Avg Demand * Lead Time ) + Safety Stock</small>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-laporan-stok">
@@ -52,7 +58,10 @@
     <script>
         $(document).ready(function () {
             var table = $('#table_id').DataTable({
-                paging: true
+                paging: true,
+                columnDefs: [
+                    { className: 'text-center', targets: [0, 3, 4, 5, 6] }
+                ]
             });
 
             loadData('semua');
@@ -72,12 +81,28 @@
 
                         let counter = 1;
                         $.each(response, function (index, item) {
+                            let warning = '';
+                            let stokClass = '';
+                            let stokVal = parseFloat(item.stok);
+                            let ssVal = parseFloat(item.safety_stock);
+                            let ropVal = parseFloat(item.reorder_point);
+
+                            if (stokVal < ssVal) {
+                                stokClass = 'text-danger font-weight-bold';
+                                warning = ' &nbsp; &nbsp;<i class="fas fa-exclamation-circle text-danger" title="Stok di bawah Safety Stock!"></i>';
+                            } else if (stokVal < ropVal) {
+                                stokClass = 'text-warning font-weight-bold';
+                                warning = ' &nbsp; &nbsp;<i class="fas fa-exclamation-triangle text-warning" title="Stok di bawah Reorder Point!"></i>';
+                            }
+
                             var row = [
                                 counter++,
-                                item.kode_barang,
+                                item.kode_barang + warning,
                                 item.nama_barang,
-                                item.stok + ' ' + (item.satuan ? item.satuan.satuan : ''),
-                                item.safety_stock + ' ' + (item.satuan ? item.satuan.satuan : '')
+                                `<span class="${stokClass}">${item.stok} ${(item.satuan ? item.satuan.satuan : '')}</span>`,
+                                item.lead_time_days + ' days',
+                                item.safety_stock + ' ' + (item.satuan ? item.satuan.satuan : ''),
+                                item.reorder_point + ' ' + (item.satuan ? item.satuan.satuan : '')
                             ];
                             table.row.add(row); // Menambahkan baris data ke DataTables
                         });

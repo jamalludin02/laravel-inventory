@@ -23,6 +23,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Transaksi</th>
+                                    <th>Kode PO</th>
                                     <th>Tanggal Masuk</th>
                                     <th>Nama Barang</th>
                                     <th>Stok Masuk</th>
@@ -123,19 +124,20 @@
                 $.each(data, function (key, value) {
                     let supplierName = getSupplierName(suppliers, value.supplier_id);
                     let row = `
-                                <tr class="barang-row" id="index_${value.id}">
-                                    <td>${counter++}</td>   
-                                    <td>${value.kode_transaksi}</td>
-                                    <td>${value.tanggal_masuk}</td>
-                                    <td>${value.nama_barang}</td>
-                                    <td>${value.jumlah_masuk}</td>
-                                    <td>${supplierName}</td>
-                                    <td>
-                                        <a href="javascript:void(0)" id="button_edit_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                        <a href="javascript:void(0)" id="button_hapus_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
-                                    </td>
-                                </tr>
-                            `;
+                                        <tr class="barang-row" id="index_${value.id}">
+                                            <td>${counter++}</td>   
+                                            <td>${value.kode_transaksi}</td>
+                                            <td>${value.po_no || '-'}</td>
+                                            <td>${value.tanggal_masuk}</td>
+                                            <td>${value.nama_barang}</td>
+                                            <td>${value.jumlah_masuk}</td>
+                                            <td>${supplierName}</td>
+                                            <td>
+                                                <a href="javascript:void(0)" id="button_edit_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
+                                                <a href="javascript:void(0)" id="button_hapus_barangMasuk" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                            </td>
+                                        </tr>
+                                    `;
                     $('#table_id').DataTable().row.add($(row)).draw(false);
                 });
             }

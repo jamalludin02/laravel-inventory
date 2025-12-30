@@ -51,4 +51,12 @@ class Barang extends Model
     {
         return $this->belongsTo(Satuan::class, 'satuan_id');
     }
+
+    /**
+     * Relation to SafetyStock view
+     */
+    public function safetyStock()
+    {
+        return $this->hasOne(SafetyStock::class, 'barang_id');
+    }
 }

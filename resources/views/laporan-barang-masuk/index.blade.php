@@ -44,10 +44,11 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Kode Transaksi</th>
+                                    <th>Kode Purchase Order</th>
+                                    <th>Supplier</th>
                                     <th>Tanggal Masuk</th>
                                     <th>Nama Barang</th>
                                     <th>Jumlah Masuk</th>
-                                    <th>Supplier</th>
                                 </tr>
                             </thead>
                             <tbody id="tabel-laporan-barang-masuk">
@@ -96,10 +97,11 @@
                                     var row = [
                                         (index + 1),
                                         item.kode_transaksi,
+                                        item.po_no,
+                                        supplier,
                                         item.tanggal_masuk,
                                         item.nama_barang,
-                                        item.jumlah_masuk,
-                                        supplier
+                                        item.jumlah_masuk
                                     ];
                                     table.row.add(row).draw(false); // Tambahkan data yang baru ke DataTable
                                 });
