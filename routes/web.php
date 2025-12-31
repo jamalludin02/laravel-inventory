@@ -34,6 +34,16 @@ use App\Http\Controllers\PurchaseOrderController;
 |
 */
 
+Route::get('/debug-url', function () {
+    return [
+        'APP_URL_ENV' => env('APP_URL'),
+        'APP_URL_CONFIG' => config('app.url'),
+        'CURRENT_URL' => url()->current(),
+        'BASE_URL' => url('/'),
+    ];
+});
+
+
 Route::middleware('auth')->group(function () {
 
     // --- ALL ROLES ---
