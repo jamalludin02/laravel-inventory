@@ -1,71 +1,67 @@
-
 # Sistem Informasi Inventory Gudang
 
+Sistem Informasi Inventory Gudang Berbasis Web adalah aplikasi yang dirancang untuk mengelola inventaris atau stok barang secara efisien. Sistem ini mencakup manajemen stok cerdas menggunakan metode **Reorder Point (ROP)** dan **Safety Stock (SS)** untuk memastikan ketersediaan barang tetap terjaga berdasarkan data historis transaksi.
 
-Sistem Informasi Inventory Gudang Berbasis Web adalah aplikasi atau sistem yang digunakan untuk mengelola inventaris atau stok barang di dalam gudang melalui platform web. Sistem ini dirancang untuk memudahkan proses pengelolaan, pemantauan, dan pengendalian persediaan barang secara efisien.
+## Fitur Utama
 
+### 1. Manajemen Stok Cerdas (ROP & SS)
+*   **Safety Stock (SS)**: Perhitungan stok pengaman otomatis berdasarkan variasi permintaan dan lead time.
+    *   *Rumus: (Max Demand - Avg Demand) * Lead Time*
+*   **Reorder Point (ROP)**: Titik pemesanan kembali otomatis untuk mencegah kehabisan stok.
+    *   *Rumus: (Avg Demand * Lead Time) + Safety Stock*
+*   **Visual Warning**: Indikator warna (Merah/Oranye) pada laporan stok untuk barang yang mencapai ambang batas kritis.
 
-## Fitur
-- Data Master
-    1. Data Barang
-    2. Jenis
-    3. Satuan
-    4. Perusahaan
-        - Customer
-        - Supplier
-- Transaksi
-    1. Barang Masuk
-    2. Barang Keluar
-- Laporan
-    1. Laporan Stok (Print)
-    2. Laporan Barang Masuk (Print)
-    3. Laporan Barang Keluar (Print)
-- Manajemen User
-    1. Data Pengguna/User
-    2. Hak Akses/Role
-    3. Acitvity Log
-- Ubah Password
+### 2. Siklus Pembelian (Purchasing)
+*   **Purchase Order (PO)**: Pembuatan pesanan pembelian ke supplier.
+*   **Rekomendasi Belanja**: Daftar otomatis barang yang berada di bawah ROP untuk memudahkan proses restock.
+*   **Proses Penerimaan**: Validasi barang masuk berdasarkan PO dengan pencatatan alasan jika terjadi selisih kuantitas.
 
+### 3. Siklus Penjualan & Logistik
+*   **Sales Order (SO)**: Manajemen pesanan dari customer.
+*   **Barang Masuk & Keluar**: Pencatatan mutasi barang dengan traceability (Kode PO/SO).
+*   **Laporan**: Cetak laporan stok, barang masuk, dan barang keluar dalam format PDF.
 
+### 4. Administrasi & Keamanan
+*   **Manajemen User**: Pengaturan pengguna dengan hak akses (Role-based Access Control).
+*   **Activity Log**: Pencatatan setiap aktivitas penting yang dilakukan pengguna dalam sistem.
+*   **Database Backup**: Fitur backup database mandiri untuk keamanan data.
 
 ## Teknologi
+*   **Laravel 10/11**: PHP Framework.
+*   **MySQL**: Database dengan pemanfaatan *Database Views* untuk kalkulasi ROP dinamis.
+*   **Stisla**: Admin Template.
+*   **DataTables**: Manajemen tabel interaktif.
+*   **Dompdf**: Generator laporan PDF.
 
-Sistem Informasi Inventory Gudang menggunakan beberapa Teknologi diantaranya :
+## Instalasi Lokal (XAMPP)
 
-- Laravel - The PHP Framework for Web Artisans
-- JavaScript - JavaScript, often abbreviated as JS, is a programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS.
-- jQuery - jQuery is a JavaScript framework designed to simplify HTML DOM tree traversal and manipulation, as well as event handling, CSS animation, and Ajax.
-- Bootstrap - Bootstrap is a free and open-source CSS framework directed at responsive, mobile-first front-end web development. 
+1.  **Clone Project**:
+    ```sh
+    git clone https://github.com/jamalludin02/laravel-inventory.git
+    ```
+2.  **Install Dependensi**:
+    ```sh
+    composer install
+    npm install
+    npm run build
+    ```
+3.  **Konfigurasi Database**:
+    *   Buat database di MySQL.
+    *   Salin `.env.example` menjadi `.env` dan sesuaikan `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
+4.  **Migrasi & Seed**:
+    ```sh
+    php artisan migrate --seed
+    ```
+5.  **Konfigurasi Sub-folder (Opsional)**:
+    Jika dijalankan di sub-folder XAMPP (misal: `localhost/inventory`), sesuaikan `APP_URL` di `.env`:
+    ```env
+    APP_URL=http://localhost/inventory
+    ```
 
+## Hosting (InfinityFree/Shared Hosting)
 
-## Installasi
-
-Lakukan Clone Project/Unduh manual 
-
-Buat database dengan nama 'inventorygudang'
-
-Jika melakukan Clone Project, rename file .env.example dengan env dan hubungkan
-database nya dengan mengisikan nama database, 'DB_DATABASE=inventorygudang'
-
-
-Kemudian, Ketik pada terminal :
-```sh
-php artisan migrate
-```
-
-Lalu ketik juga
-
-```sh
-php artisan migrate:fresh --seed
-```
-
-Jalankan aplikasi 
-
-```sh
-php artisan serve
-```
-
-Akses Aplikasi di Web browser 
-```sh
-127.0.0.1:8000
-```
+1.  **Build Aset**: Jalankan `npm run build` di lokal.
+2.  **Optimasi Vendor**: Jalankan `composer install --no-dev --optimize-autoloader`.
+3.  **Upload**: Unggah seluruh file ke folder `htdocs` (gunakan ZIP untuk kecepatan).
+4.  **Entry Point**: Gunakan file `.htaccess` di root untuk mengarahkan traffic ke folder `public`.
+5.  **Database**: Import database melalui phpMyAdmin di panel hosting.
