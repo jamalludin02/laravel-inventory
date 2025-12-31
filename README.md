@@ -6,25 +6,30 @@ Sistem Informasi Inventory Gudang Berbasis Web adalah aplikasi atau sistem yang 
 
 
 ## Fitur
-- Data Master
-    1. Data Barang
-    2. Jenis
-    3. Satuan
-    4. Perusahaan
-        - Customer
-        - Supplier
-- Transaksi
-    1. Barang Masuk
-    2. Barang Keluar
-- Laporan
-    1. Laporan Stok (Print)
-    2. Laporan Barang Masuk (Print)
-    3. Laporan Barang Keluar (Print)
-- Manajemen User
-    1. Data Pengguna/User
-    2. Hak Akses/Role
-    3. Acitvity Log
-- Ubah Password
+- **Dashboard**: Ringkasan stok dan aktivitas terbaru.
+- **Data Master**:
+    1. **Data Barang**: Manajemen stok, harga, dan kategori barang.
+    2. **Jenis Barang**: Pengelompokan barang berdasarkan jenis.
+    3. **Satuan Barang**: Pengaturan satuan (Pcs, Box, Kg, dll).
+    4. **Perusahaan**:
+        - **Customer**: Data pelanggan untuk Sales Order.
+        - **Supplier**: Data pemasok untuk Purchase Order.
+- **Transaksi**:
+    1. **Sales Order (Order)**: Manajemen pesanan penjualan, status pengiriman, dan cetak invoice.
+    2. **Purchase Order (PO)**: Manajemen pesanan pembelian ke supplier dengan fitur *Reorder Point*.
+    3. **Barang Masuk**: Pencatatan barang masuk (terintegrasi dengan PO).
+    4. **Barang Keluar**: Pencatatan barang keluar (terintegrasi dengan Sales Order).
+- **Laporan**:
+    1. **Laporan Stok**: Monitoring stok dengan indikator *Safety Stock* dan *Reorder Point* (Print PDF).
+    2. **Laporan Barang Masuk**: Rekapitulasi barang masuk berdasarkan periode (Print PDF).
+    3. **Laporan Barang Keluar**: Rekapitulasi barang keluar berdasarkan periode (Print PDF).
+- **Manajemen User**:
+    1. **Data Pengguna**: Pengaturan akun pengguna.
+    2. **Hak Akses (Role)**: Pengaturan izin akses (Super Admin, Admin Gudang, Staff, dll).
+    3. **Menu Management**: Pengaturan urutan dan visibilitas menu.
+    4. **Activity Log**: Pencatatan riwayat aktivitas pengguna di sistem.
+- **Profil**:
+    1. **Ubah Password**: Fitur keamanan untuk mengganti password pengguna.
 
 
 
