@@ -63,8 +63,6 @@ Sistem Informasi Inventory Gudang Berbasis Web adalah aplikasi yang dirancang un
 2.  **Install Dependensi**:
     ```sh
     composer install
-    npm install
-    npm run build
     ```
 3.  **Konfigurasi Database**:
     *   Buat database di MySQL.
@@ -81,8 +79,7 @@ Sistem Informasi Inventory Gudang Berbasis Web adalah aplikasi yang dirancang un
 
 ## Hosting (InfinityFree/Shared Hosting)
 
-1.  **Build Aset**: Jalankan `npm run build` di lokal.
-2.  **Optimasi Vendor**: Jalankan `composer install --no-dev --optimize-autoloader`.
+1.  **Optimasi Vendor**: Jalankan `composer install --no-dev --optimize-autoloader`.
 3.  **Upload**: Unggah seluruh file ke folder `htdocs` (gunakan ZIP untuk kecepatan).
 4.  **Entry Point**: Gunakan file `.htaccess` di root untuk mengarahkan traffic ke folder `public`.
 5.  **Database**: Import database melalui phpMyAdmin di panel hosting.
