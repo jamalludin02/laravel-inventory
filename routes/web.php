@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     // --- ALL ROLES ---
     Route::group(['middleware' => 'checkRole:super_admin,kepala_gudang,admin_gudang,staff_gudang,admin_sales'], function () {
         Route::get('/', [DashboardController::class, 'index']);
+        Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
         Route::resource('/dashboard', DashboardController::class);
 
         Route::get('/ubah-password', [UbahPasswordController::class, 'index']);

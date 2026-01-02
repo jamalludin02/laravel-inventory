@@ -34,10 +34,10 @@ class LaporanStokController extends Controller
 
         $query = Barang::with('satuan')
             ->leftJoin('reorder_point', 'barangs.id', '=', 'reorder_point.barang_id')
-            ->select('barangs.*','reorder_point.lead_time_days' , 'reorder_point.safety_stock', 'reorder_point.reorder_point');
+            ->select('barangs.*', 'reorder_point.lead_time_days', 'reorder_point.safety_stock', 'reorder_point.reorder_point');
 
         if ($selectedOption == 'minimum') {
-            $query->whereRaw('barangs.stok <= reorder_point.safety_stock');
+            $query->whereRaw('barangs.stok <= reorder_point.reorder_point');
         } elseif ($selectedOption == 'stok-habis') {
             $query->where('stok', 0);
         }
@@ -58,7 +58,7 @@ class LaporanStokController extends Controller
             ->select('barangs.*', 'reorder_point.safety_stock', 'reorder_point.reorder_point');
 
         if ($selectedOption == 'minimum') {
-            $query->whereRaw('barangs.stok <= reorder_point.safety_stock');
+            $query->whereRaw('barangs.stok <= reorder_point.reorder_point');
         } elseif ($selectedOption == 'stok-habis') {
             $query->where('stok', 0);
         }

@@ -30,9 +30,9 @@ return new class extends Migration {
             ),
             lead_time_calc AS (
                 SELECT 
-                    COALESCE(ROUND(AVG(DATEDIFF(date_complete, order_date) + 1)), 0) AS lead_time_days
-                FROM orders
-                WHERE date_complete IS NOT NULL
+                    COALESCE(ROUND(AVG(DATEDIFF(date_received, po_date) + 1)), 0) AS lead_time_days
+                FROM purchase_orders
+                WHERE date_received IS NOT NULL
             )
             SELECT 
                 br.id as barang_id,

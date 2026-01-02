@@ -53,10 +53,10 @@ class Barang extends Model
     }
 
     /**
-     * Relation to SafetyStock view
+     * Relation to ReorderPoint view
      */
-    public function safetyStock()
+    public function reorderPoint()
     {
-        return $this->hasOne(SafetyStock::class, 'barang_id');
+        return $this->hasOne(ReorderPoint::class, 'barang_id');
     }
 }
